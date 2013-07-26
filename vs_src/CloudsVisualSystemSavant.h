@@ -92,13 +92,14 @@ public:
     
     // if you use a custom camera to fly through the scene
 	// you must implement this method for the transitions to work properly
-    //	ofCamera& getCameraRef(){
-    //		return myCustomCamera;
-    //	}
+	ofCamera& getCameraRef(){
+		return cloudsCamera;
+	}
 	
 protected:
     
-    
+	ofShader pointcloudShader;
+	ofVboMesh simplePointcloud;
 
     
     // GUI Placeholder
