@@ -12,10 +12,10 @@
 //These methods let us add custom GUI parameters and respond to their events
 void CloudsVisualSystemSavant::selfSetupGui(){
     
-	customGui = new ofxUISuperCanvas("SAVANT", gui);
+	customGui = new ofxUISuperCanvas("CUSTOM", gui);
 	customGui->copyCanvasStyle(gui);
 	customGui->copyCanvasProperties(gui);
-	customGui->setName("Savant");
+	customGui->setName("Custom");
 	customGui->setWidgetFontSize(OFX_UI_FONT_SMALL);
 	
 	customGui->addSlider("Custom Float 1", 1, 1000, &customFloat1);
@@ -43,7 +43,6 @@ void CloudsVisualSystemSavant::selfSetupSystemGui(){
 void CloudsVisualSystemSavant::guiSystemEvent(ofxUIEventArgs &e){
 	
 }
-
 //use render gui for display settings, like changing colors
 void CloudsVisualSystemSavant::selfSetupRenderGui(){
     
@@ -58,6 +57,8 @@ void CloudsVisualSystemSavant::guiRenderEvent(ofxUIEventArgs &e){
 // geometry should be loaded here
 void CloudsVisualSystemSavant::selfSetup(){
     
+	loadTestVideo();
+	
     //	someImage.loadImage( getVisualSystemDataPath() + "images/someImage.png";
 	
 }
@@ -83,15 +84,13 @@ void CloudsVisualSystemSavant::selfSceneTransformation(){
 }
 
 //normal update call
-void CloudsVisualSystemSavant::selfUpdate() {
+void CloudsVisualSystemSavant::selfUpdate(){
     
 }
 // selfDraw draws in 3D using the default ofEasyCamera
 // you can change the camera by returning getCameraRef()
-void CloudsVisualSystemSavant::selfDraw() {
-    //	sharedRenderer->setShaderPath();
-    //	sharedRenderer->bind();
-    //	sharedRenderer->unbind();
+void CloudsVisualSystemSavant::selfDraw(){
+	
 }
 
 // draw any debug stuff here
@@ -103,16 +102,12 @@ void CloudsVisualSystemSavant::selfDrawBackground(){
     
 	//turn the background refresh off
 	//bClearBackground = false;
-    
-    ofPushStyle();
-    ofSetColor(255, 0, 0);
-    ofRect(ofGetMouseX() - 50, ofGetMouseY() - 50, 100, 100);
-    ofPopStyle();
+	
 }
 // this is called when your system is no longer drawing.
 // Right after this selfUpdate() and selfDraw() won't be called any more
 void CloudsVisualSystemSavant::selfEnd(){
-
+	
 }
 // this is called when you should clear all the memory and delet anything you made in setup
 void CloudsVisualSystemSavant::selfExit(){
