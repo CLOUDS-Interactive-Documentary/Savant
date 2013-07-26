@@ -14,14 +14,14 @@
 #include "CloudsVisualSystem.h"
 
 //TODO: rename this to your own visual system
-class CloudsVisualSystemEmpty : public CloudsVisualSystem {
+class CloudsVisualSystemSavant : public CloudsVisualSystem {
   public:
     
 	//TODO: Change this to the name of your visual system
 	//This determines your data path so name it at first!
 	//ie getVisualSystemDataPath() uses this
     string getSystemName(){
-		return "EmptySystem";
+		return "Savant";
 	}
 
 	//These methods let us add custom GUI parameters and respond to their events
