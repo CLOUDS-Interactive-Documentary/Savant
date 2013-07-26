@@ -99,8 +99,7 @@ public:
 protected:
     
     
-    void setupSpeechEngine();
-    void destroySpeechEngine();
+
     
     // GUI Placeholder
 	ofxUISuperCanvas* customGui;
@@ -113,5 +112,13 @@ protected:
     ofAsrEngineArgs *speechEngineArgs;
     string speechEngineResults;
     void *resampleHandle;
+    
+    bool speechListenerListening;    
+    void setupSpeechEngine();
+    void destroySpeechEngine();
+    void startSpeechListener();
+    void updateSpeechListener();
+    void stopSpeechListener();
+    int getSoundBufferIndexAtVideoPosition(float videoPosition);
     
 };

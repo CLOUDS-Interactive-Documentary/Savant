@@ -88,7 +88,7 @@ void CloudsVisualSystemSavant::selfSceneTransformation(){
 
 //normal update call
 void CloudsVisualSystemSavant::selfUpdate(){
-    
+    if (speechListenerListening) updateSpeechListener();
 }
 // selfDraw draws in 3D using the default ofEasyCamera
 // you can change the camera by returning getCameraRef()
@@ -105,22 +105,26 @@ void CloudsVisualSystemSavant::selfDrawBackground(){
     
 	//turn the background refresh off
 	bClearBackground = true;
-
-    // Get references
+    
     CloudsRGBDVideoPlayer &rgbdVideoPlayer = getRGBDVideoPlayer();
 	ofxAVFVideoPlayer &avfVideoPlayer = rgbdVideoPlayer.getPlayer();
-
+    
+    
     // Draw video
     ofSetColor(ofColor::white);
     ofFill();
-//    avfVideoPlayer.play();
-//    avfVideoPlayer.update();
+    //    avfVideoPlayer.play();
+    //    avfVideoPlayer.update();
     avfVideoPlayer.draw(300, 0);
     
     // Update from sound buffer
     //avfVideoPlayer
-
+    
     //int audioIndex = MIN(floor(avfVideoPlayer.getPosition() * avfVideoPlayer.getNumAmplitudes()), avfVideoPlayer.getNumAmplitudes() - 1);
+    
+    // infer sample rate
+    //float sampleRate = avfVideoPlayer.getNumAmplitudes() / avfVideoPlayer.getDuration();
+    //ofLogVerbose("Sample rate?: " + ofToString(sampleRate));
     
     
     
@@ -159,11 +163,11 @@ void CloudsVisualSystemSavant::selfMouseMoved(ofMouseEventArgs& data){
 }
 
 void CloudsVisualSystemSavant::selfMousePressed(ofMouseEventArgs& data){
-	
+	startSpeechListener();
 }
 
 void CloudsVisualSystemSavant::selfMouseReleased(ofMouseEventArgs& data){
-	
+	stopSpeechListener();
 }
 
 
@@ -171,6 +175,8 @@ void CloudsVisualSystemSavant::selfMouseReleased(ofMouseEventArgs& data){
 // Visual System Specific Methods -----------------
 
 
+
+// Speech Control ------------------------------------
 
 void CloudsVisualSystemSavant::setupSpeechEngine() {
     speechEngine = new ofxSphinxASR;
@@ -205,7 +211,7 @@ void CloudsVisualSystemSavant::setupSpeechEngine() {
         ofLogVerbose("Speech Engine Started Successfully");
     }
     else {
-        printf("ASR Engine initial failed. Error Code: %d\n", startCode);
+        ofLogError("ASR Engine initial failed. Error Code: " + ofToString(startCode));
 		speechEngineResults = "ASR Engine initial failed. Check sphinx resource path";
     }
     
@@ -213,7 +219,7 @@ void CloudsVisualSystemSavant::setupSpeechEngine() {
     int resampleQuality = 1; // 1 is "high"
     double minResampleFactor = 0.5; // What's good here? TODO
     double maxResampleFactor = 0.5; // What's good here? TODO
-    resampleHandle = resample_open(resampleQuality, minResampleFactor, maxResampleFactor);    
+    resampleHandle = resample_open(resampleQuality, minResampleFactor, maxResampleFactor);
 }
 
 void CloudsVisualSystemSavant::destroySpeechEngine() {
@@ -222,7 +228,7 @@ void CloudsVisualSystemSavant::destroySpeechEngine() {
         delete speechEngine;
         speechEngine = NULL;
     }
-
+    
     if (speechEngineArgs != NULL) {
         delete speechEngineArgs;
         speechEngineArgs = NULL;
@@ -231,6 +237,113 @@ void CloudsVisualSystemSavant::destroySpeechEngine() {
     // And associated resampling
     resample_close(resampleHandle);
 }
+
+
+int speechStartedListeningIndex;
+int speechLastUpdateIndex;
+
+void CloudsVisualSystemSavant::startSpeechListener() {
+    int retval = speechEngine->engineOpen();
+    if (retval != OFXASR_SUCCESS) {
+        ofLogError("ASR Engine failed to open. Error Code: " + ofToString(retval));
+    }
+    
+    // Get references
+    CloudsRGBDVideoPlayer &rgbdVideoPlayer = getRGBDVideoPlayer();
+	ofxAVFVideoPlayer &avfVideoPlayer = rgbdVideoPlayer.getPlayer();
+    speechLastUpdateIndex = speechStartedListeningIndex = getSoundBufferIndexAtVideoPosition(avfVideoPlayer.getPosition());
+    
+    speechListenerListening = true;
+}
+
+
+void CloudsVisualSystemSavant::updateSpeechListener() {
+    // Get listening position, find range since last update....
+    CloudsRGBDVideoPlayer &rgbdVideoPlayer = getRGBDVideoPlayer();
+	ofxAVFVideoPlayer &avfVideoPlayer = rgbdVideoPlayer.getPlayer();
+    int speechCurrentUpdateIndex = getSoundBufferIndexAtVideoPosition(avfVideoPlayer.getPosition());
+    
+    int startSoundIndex = speechLastUpdateIndex;
+    int endSoundIndex = speechCurrentUpdateIndex; // TODO round down to buffer size...
+    
+    // Should do this when loaded...
+    
+    int sourceSampleRate = 44100; // TODO calculate this
+    int speechSampleRate = 16000; // todo make class const
+    double resampleFactor = (double)sourceSampleRate / (double)speechSampleRate; // Todo cache this
+    int incomingBufferSize = endSoundIndex - startSoundIndex;
+    int expectedResultBufferSize = ceil((double)incomingBufferSize * resampleFactor);
+    
+    int minBufferSize = 16; // TODO what's a reasonable number here?
+    
+    if (expectedResultBufferSize < minBufferSize) {
+        ofLogError("Not enough samples to send to speech engine, expecting " + ofToString(expectedResultBufferSize));
+    }
+    else {
+        // Pull in the correct chunk of buffer from the video
+        float *inputBuffer = new float[incomingBufferSize];
+        
+        for (int i = 0; i < incomingBufferSize; i++) {
+            inputBuffer[i] = avfVideoPlayer.getAllAmplitudes()[startSoundIndex + i];
+        }
+        
+        // Downsample from 44.1 to 16 khz.
+        float *downSampleBuffer = new float[expectedResultBufferSize];
+        
+        ofLogVerbose("expectedResultBufferSize: " + ofToString(expectedResultBufferSize));
+        
+        int srcUsed; // What ees this? Frames actually used?
+        resample_process(resampleHandle, resampleFactor, inputBuffer, incomingBufferSize, 1, &srcUsed, downSampleBuffer, expectedResultBufferSize);
+        
+        ofLogVerbose("srcUsed: " + ofToString(srcUsed));
+        
+        // Convert from float to short for the sound engine (16 bit PCM) // TODO correct for frame misalignment
+        short *downSampleBuffer16BitPCM = new short[expectedResultBufferSize];
+        for (int i = 0; i < expectedResultBufferSize; i++) {
+            downSampleBuffer16BitPCM[i] = short(downSampleBuffer[i] * 32767.5 - 0.5);
+        }
+        
+        // Send it to the engine // TODO correct for frame misalignment
+        speechEngine->engineSentAudio(downSampleBuffer16BitPCM, expectedResultBufferSize);
+        
+        // Update last index... // TODO correct for frame misalignment
+        speechLastUpdateIndex = speechCurrentUpdateIndex;
+    }
+}
+
+
+
+void CloudsVisualSystemSavant::stopSpeechListener() {
+    speechListenerListening = false;
+    
+    // Close the engines
+    int retval;
+    retval = speechEngine->engineClose();
+    
+    if (retval != OFXASR_SUCCESS) {
+        ofLogError("Speech engine failed to close. Error code: " + ofToString(retval));
+    }
+    
+    // Get results
+	char *results = speechEngine->engineGetText();
+	if (results) {
+		string s1(results);
+		speechEngineResults = s1;
+        ofLogVerbose("Got words: " + ofToString(speechEngineResults));
+	}
+	else {
+        ofLogVerbose("No result from the speech engine.");
+	}
+}
+
+int CloudsVisualSystemSavant::getSoundBufferIndexAtVideoPosition(float videoPosition) {
+    CloudsRGBDVideoPlayer &rgbdVideoPlayer = getRGBDVideoPlayer();
+	ofxAVFVideoPlayer &avfVideoPlayer = rgbdVideoPlayer.getPlayer();
+    return MIN(floor(videoPosition * avfVideoPlayer.getNumAmplitudes()), avfVideoPlayer.getNumAmplitudes() - 1);
+}
+
+
+
 
 
 
