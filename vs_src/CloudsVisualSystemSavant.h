@@ -10,6 +10,8 @@
 
 #pragma once
 
+//#define AVF_PLAYER
+
 #include "CloudsVisualSystem.h"
 
 //TODO: rename this to your own visual system
@@ -96,9 +98,7 @@ public:
 	
 protected:
     
-    //  Your Stuff
-    //
-	
+    //  Your Stuff	
 	ofxUISuperCanvas* customGui;
 	bool customToggle;
 	float customFloat1;

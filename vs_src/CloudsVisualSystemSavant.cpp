@@ -4,10 +4,11 @@
 
 #include "CloudsVisualSystemSavant.h"
 
-//#include "CloudsRGBDVideoPlayer.h"
-//#ifdef AVF_PLAYER
-//#include "ofxAVFVideoPlayer.h"
-//#endif
+
+#include "CloudsRGBDVideoPlayer.h"
+#ifdef AVF_PLAYER
+#include "ofxAVFVideoPlayer.h"
+#endif
 
 //These methods let us add custom GUI parameters and respond to their events
 void CloudsVisualSystemSavant::selfSetupGui(){
@@ -101,8 +102,32 @@ void CloudsVisualSystemSavant::selfDrawDebug(){
 void CloudsVisualSystemSavant::selfDrawBackground(){
     
 	//turn the background refresh off
-	//bClearBackground = false;
-	
+	bClearBackground = true;
+
+    // Get references
+    CloudsRGBDVideoPlayer &rgbdVideoPlayer = getRGBDVideoPlayer();
+	ofxAVFVideoPlayer &avfVideoPlayer = rgbdVideoPlayer.getPlayer();
+    
+    // Draw video
+    ofSetColor(ofColor::white);
+    ofFill();
+//    avfVideoPlayer.play();
+//    avfVideoPlayer.update();
+    avfVideoPlayer.draw(0, 0);
+    
+    // Update from sound buffer
+    //avfVideoPlayer
+
+    int audioIndex = MIN(floor(avfVideoPlayer.getPosition() * avfVideoPlayer.getNumAmplitudes()), avfVideoPlayer.getNumAmplitudes() - 1);
+    
+    
+    
+    cout << "audioIndex: " << audioIndex << endl;
+    
+    //myfft.powerSpectrum(idx,(int)BUFFER_SIZE/2, p->getAllAmplitudes(), BUFFER_SIZE, &magnitude[0],&phase[0],&power[0],&avg_power);
+    
+    
+    
 }
 // this is called when your system is no longer drawing.
 // Right after this selfUpdate() and selfDraw() won't be called any more
