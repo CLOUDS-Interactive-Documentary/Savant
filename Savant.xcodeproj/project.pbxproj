@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2551965017A31381002955E8 /* filterkit.c in Sources */ = {isa = PBXBuildFile; fileRef = 2551964A17A31381002955E8 /* filterkit.c */; };
+		2551965117A31381002955E8 /* resample.c in Sources */ = {isa = PBXBuildFile; fileRef = 2551964D17A31381002955E8 /* resample.c */; };
+		2551965217A31381002955E8 /* resamplesubs.c in Sources */ = {isa = PBXBuildFile; fileRef = 2551964F17A31381002955E8 /* resamplesubs.c */; };
 		257E673C17A30B1000BFE17E /* CloudsVisualSystemSavant.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 257E673A17A30B1000BFE17E /* CloudsVisualSystemSavant.cpp */; };
 		257E67D117A30C0200BFE17E /* libs3decoder.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 257E67C117A30C0200BFE17E /* libs3decoder.dylib */; };
 		257E67D217A30C0200BFE17E /* libsphinxbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 257E67C217A30C0200BFE17E /* libsphinxbase.dylib */; };
@@ -142,6 +145,14 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		2551964817A31381002955E8 /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
+		2551964917A31381002955E8 /* configtemplate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = configtemplate.h; sourceTree = "<group>"; };
+		2551964A17A31381002955E8 /* filterkit.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = filterkit.c; sourceTree = "<group>"; };
+		2551964B17A31381002955E8 /* filterkit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = filterkit.h; sourceTree = "<group>"; };
+		2551964C17A31381002955E8 /* libresample.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libresample.h; sourceTree = "<group>"; };
+		2551964D17A31381002955E8 /* resample.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = resample.c; sourceTree = "<group>"; };
+		2551964E17A31381002955E8 /* resample_defs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = resample_defs.h; sourceTree = "<group>"; };
+		2551964F17A31381002955E8 /* resamplesubs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = resamplesubs.c; sourceTree = "<group>"; };
 		257E673A17A30B1000BFE17E /* CloudsVisualSystemSavant.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CloudsVisualSystemSavant.cpp; sourceTree = "<group>"; };
 		257E673B17A30B1000BFE17E /* CloudsVisualSystemSavant.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CloudsVisualSystemSavant.h; sourceTree = "<group>"; };
 		257E674817A30C0200BFE17E /* adaptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = adaptor.h; sourceTree = "<group>"; };
@@ -567,6 +578,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2551964717A31381002955E8 /* libsample */ = {
+			isa = PBXGroup;
+			children = (
+				2551964817A31381002955E8 /* config.h */,
+				2551964917A31381002955E8 /* configtemplate.h */,
+				2551964A17A31381002955E8 /* filterkit.c */,
+				2551964B17A31381002955E8 /* filterkit.h */,
+				2551964C17A31381002955E8 /* libresample.h */,
+				2551964D17A31381002955E8 /* resample.c */,
+				2551964E17A31381002955E8 /* resample_defs.h */,
+				2551964F17A31381002955E8 /* resamplesubs.c */,
+			);
+			path = libsample;
+			sourceTree = "<group>";
+		};
 		257E673D17A30C0200BFE17E /* ofxASR */ = {
 			isa = PBXGroup;
 			children = (
@@ -1124,8 +1150,9 @@
 		3DA45C5F179DB6C3002EC0AC /* vs_src */ = {
 			isa = PBXGroup;
 			children = (
-				257E673A17A30B1000BFE17E /* CloudsVisualSystemSavant.cpp */,
+				2551964717A31381002955E8 /* libsample */,
 				257E673B17A30B1000BFE17E /* CloudsVisualSystemSavant.h */,
+				257E673A17A30B1000BFE17E /* CloudsVisualSystemSavant.cpp */,
 			);
 			path = vs_src;
 			sourceTree = SOURCE_ROOT;
@@ -1585,6 +1612,9 @@
 				E7D26E5C17A2F0CF00652876 /* CloudsRGBDCamera.cpp in Sources */,
 				257E673C17A30B1000BFE17E /* CloudsVisualSystemSavant.cpp in Sources */,
 				257E67D517A30C0200BFE17E /* ofxSphinxASR.cpp in Sources */,
+				2551965017A31381002955E8 /* filterkit.c in Sources */,
+				2551965117A31381002955E8 /* resample.c in Sources */,
+				2551965217A31381002955E8 /* resamplesubs.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

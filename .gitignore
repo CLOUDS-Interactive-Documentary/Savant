@@ -67,3 +67,8 @@ Desktop.ini
 /bin/data/snapshots/
 /bin/data/Presets/Working/
 /DerivedData/
+
+
+# Project
+/bin/data/speech_models/*
+

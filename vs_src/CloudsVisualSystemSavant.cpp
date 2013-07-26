@@ -11,8 +11,7 @@
 #endif
 
 //These methods let us add custom GUI parameters and respond to their events
-void CloudsVisualSystemSavant::selfSetupGui(){
-    
+void CloudsVisualSystemSavant::selfSetupGui() {
 	customGui = new ofxUISuperCanvas("CUSTOM", gui);
 	customGui->copyCanvasStyle(gui);
 	customGui->copyCanvasProperties(gui);
@@ -30,7 +29,7 @@ void CloudsVisualSystemSavant::selfSetupGui(){
 	guimap[customGui->getName()] = customGui;
 }
 
-void CloudsVisualSystemSavant::selfGuiEvent(ofxUIEventArgs &e){
+void CloudsVisualSystemSavant::selfGuiEvent(ofxUIEventArgs &e) {
 	if(e.widget->getName() == "Custom Button"){
 		cout << "Button pressed!" << endl;
 	}
@@ -58,10 +57,13 @@ void CloudsVisualSystemSavant::guiRenderEvent(ofxUIEventArgs &e){
 // geometry should be loaded here
 void CloudsVisualSystemSavant::selfSetup(){
     
+    ofSetLogLevel(OF_LOG_VERBOSE);
+    
 	loadTestVideo();
-	
-    //	someImage.loadImage( getVisualSystemDataPath() + "images/someImage.png";
-	
+    
+    
+    // Create speech engine
+    setupSpeechEngine();
 }
 
 // selfPresetLoaded is called whenever a new preset is triggered
@@ -107,22 +109,22 @@ void CloudsVisualSystemSavant::selfDrawBackground(){
     // Get references
     CloudsRGBDVideoPlayer &rgbdVideoPlayer = getRGBDVideoPlayer();
 	ofxAVFVideoPlayer &avfVideoPlayer = rgbdVideoPlayer.getPlayer();
-    
+
     // Draw video
     ofSetColor(ofColor::white);
     ofFill();
 //    avfVideoPlayer.play();
 //    avfVideoPlayer.update();
-    avfVideoPlayer.draw(0, 0);
+    avfVideoPlayer.draw(300, 0);
     
     // Update from sound buffer
     //avfVideoPlayer
 
-    int audioIndex = MIN(floor(avfVideoPlayer.getPosition() * avfVideoPlayer.getNumAmplitudes()), avfVideoPlayer.getNumAmplitudes() - 1);
+    //int audioIndex = MIN(floor(avfVideoPlayer.getPosition() * avfVideoPlayer.getNumAmplitudes()), avfVideoPlayer.getNumAmplitudes() - 1);
     
     
     
-    cout << "audioIndex: " << audioIndex << endl;
+    //cout << "audioIndex: " << audioIndex << endl;
     
     //myfft.powerSpectrum(idx,(int)BUFFER_SIZE/2, p->getAllAmplitudes(), BUFFER_SIZE, &magnitude[0],&phase[0],&power[0],&avg_power);
     
@@ -136,7 +138,7 @@ void CloudsVisualSystemSavant::selfEnd(){
 }
 // this is called when you should clear all the memory and delet anything you made in setup
 void CloudsVisualSystemSavant::selfExit(){
-	
+    destroySpeechEngine();
 }
 
 //events are called when the system is active
@@ -163,3 +165,74 @@ void CloudsVisualSystemSavant::selfMousePressed(ofMouseEventArgs& data){
 void CloudsVisualSystemSavant::selfMouseReleased(ofMouseEventArgs& data){
 	
 }
+
+
+
+// Visual System Specific Methods -----------------
+
+
+
+void CloudsVisualSystemSavant::setupSpeechEngine() {
+    speechEngine = new ofxSphinxASR;
+    speechEngineArgs = new ofAsrEngineArgs;
+    speechEngineArgs->samplerate = 16000; // Hz
+	speechEngineArgs->sphinx_mode = 4; // Mode 4 is for continuous recognition
+    
+    // Set up data, still finding the best ones
+    //    e->sphinxmodel_am = ofToDataPath("sphinxmodel1/digit_8gau");
+    //    e->sphinxmodel_lm = ofToDataPath("sphinxmodel1/digit.lm.DMP");
+    //    e->sphinxmodel_dict = ofToDataPath("sphinxmodel1/dictionary");
+    //    e->sphinxmodel_fdict = ofToDataPath("sphinxmodel1/fillerdict");
+    
+    //    e->sphinxmodel_am = ofToDataPath("sphinxmodel2/Communicator_40.cd_cont_4000");
+    //    e->sphinxmodel_lm = ofToDataPath("sphinxmodel2/language_model.arpaformat.DMP");
+    //    e->sphinxmodel_dict = ofToDataPath("sphinxmodel2/cmudict.hub4.06d.dict");
+    //    e->sphinxmodel_fdict = ofToDataPath("sphinxmodel2/fillerdict");
+    
+    //    e->sphinxmodel_am = ofToDataPath("sphinxmodel3/wsj_all_cd30.mllt_cd_cont_4000");
+    //    e->sphinxmodel_lm = ofToDataPath("sphinxmodel3/language_model.arpaformat.DMP");
+    //    e->sphinxmodel_dict = ofToDataPath("sphinxmodel3/cmudict.hub4.06d.dict");
+    //    e->sphinxmodel_fdict = ofToDataPath("sphinxmodel3/fillerdict");
+    
+    speechEngineArgs->sphinxmodel_am = getVisualSystemDataPath() + "speech_models/sphinxmodel4/sphinxmodel_voxforge-en-r0_1_3";
+    speechEngineArgs->sphinxmodel_lm = getVisualSystemDataPath() + "speech_models/sphinxmodel4/voxforge_en_sphinx.lm.DMP";
+    speechEngineArgs->sphinxmodel_dict = getVisualSystemDataPath() + "speech_models/sphinxmodel4/cmudict.0.7a";
+    speechEngineArgs->sphinxmodel_fdict = getVisualSystemDataPath() + "speech_models/sphinxmodel4/noisedict";
+    
+    // Initialize the engine
+    int startCode = speechEngine->engineInit(speechEngineArgs);
+    if (startCode == OFXASR_SUCCESS) {
+        ofLogVerbose("Speech Engine Started Successfully");
+    }
+    else {
+        printf("ASR Engine initial failed. Error Code: %d\n", startCode);
+		speechEngineResults = "ASR Engine initial failed. Check sphinx resource path";
+    }
+    
+    // Initialize resampler
+    int resampleQuality = 1; // 1 is "high"
+    double minResampleFactor = 0.5; // What's good here? TODO
+    double maxResampleFactor = 0.5; // What's good here? TODO
+    resampleHandle = resample_open(resampleQuality, minResampleFactor, maxResampleFactor);    
+}
+
+void CloudsVisualSystemSavant::destroySpeechEngine() {
+    if (speechEngine != NULL) {
+        speechEngine->engineExit();
+        delete speechEngine;
+        speechEngine = NULL;
+    }
+
+    if (speechEngineArgs != NULL) {
+        delete speechEngineArgs;
+        speechEngineArgs = NULL;
+    }
+    
+    // And associated resampling
+    resample_close(resampleHandle);
+}
+
+
+
+
+

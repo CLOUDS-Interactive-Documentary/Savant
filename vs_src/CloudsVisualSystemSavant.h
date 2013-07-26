@@ -10,9 +10,9 @@
 
 #pragma once
 
-//#define AVF_PLAYER
-
 #include "CloudsVisualSystem.h"
+#include "ofxASR.h"
+#include "libresample.h"
 
 //TODO: rename this to your own visual system
 class CloudsVisualSystemSavant : public CloudsVisualSystem {
@@ -98,11 +98,20 @@ public:
 	
 protected:
     
-    //  Your Stuff	
+    
+    void setupSpeechEngine();
+    void destroySpeechEngine();
+    
+    // GUI Placeholder
 	ofxUISuperCanvas* customGui;
 	bool customToggle;
 	float customFloat1;
 	float customFloat2;
 	
-	ofImage someImage;
+    // Speech Recognition
+    ofxASR *speechEngine;
+    ofAsrEngineArgs *speechEngineArgs;
+    string speechEngineResults;
+    void *resampleHandle;
+    
 };
