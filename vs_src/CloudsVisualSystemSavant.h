@@ -5,7 +5,9 @@
 
 #include "CloudsVisualSystem.h"
 #include "ofxGSTT.h"
+#include "WordBox.h"
 #include "libresample.h"
+#include <vector>
 
 //TODO: rename this to your own visual system
 class CloudsVisualSystemSavant : public CloudsVisualSystem {
@@ -99,13 +101,12 @@ protected:
     // GUI Placeholder
 	ofxUISuperCanvas* customGui;
 	bool customToggle;
+    bool bAddTestWord;
 	float customFloat1;
 	float customFloat2;
     
     // Speech Recognition
     // ugh, see: http://forum.openframeworks.cc/index.php/topic,8293.0.html
-    //void audioIn(float * input, int bufferSize, int nChannels); // not available through cloud viz sys?
-    
     void setupSpeechEngine();
     void destroySpeechEngine();
     void speechReceived(string & message);
@@ -117,19 +118,15 @@ protected:
 
     ofxGSTT gstt;
     void gsttResponse(ofxGSTTResponseArgs & response);
-    
-
-    int getSoundBufferIndexAtVideoPosition(float videoPosition);
 
     bool bAudioReady;
-    //void prepareAudioBuffer();
-    
     int lastRawAudioBufferLength; // It takes some time to read...
-    
-    //int downsampledAudioBufferLength;
-    //short *downsampledAudioBuffer;
-    
-    
-    
+    int getSoundBufferIndexAtVideoPosition(float videoPosition);
+
+    // renderer
+    vector<WordBox> words;
+    void addRandomWordBox();
+    void updateWords();
+    void drawWords();
     
 };

@@ -7,7 +7,7 @@
 
 //These methods let us add custom GUI parameters and respond to their events
 void CloudsVisualSystemSavant::selfSetupGui() {
-	customGui = new ofxUISuperCanvas("CUSTOM", gui);
+	customGui = new ofxUISuperCanvas("Savant", gui);
 	customGui->copyCanvasStyle(gui);
 	customGui->copyCanvasProperties(gui);
 	customGui->setName("Custom");
@@ -15,7 +15,7 @@ void CloudsVisualSystemSavant::selfSetupGui() {
 	
 	customGui->addSlider("Custom Float 1", 1, 1000, &customFloat1);
 	customGui->addSlider("Custom Float 2", 1, 1000, &customFloat2);
-	customGui->addButton("Custom Button", false);
+	customGui->addButton("Add Test Word", &bAddTestWord);
 	customGui->addToggle("Custom Toggle", &customToggle);
 	
 	ofAddListener(customGui->newGUIEvent, this, &CloudsVisualSystemSavant::selfGuiEvent);
@@ -134,6 +134,7 @@ void CloudsVisualSystemSavant::selfUpdate(){
     
     if (speechListenerListening) updateSpeechListener();
 
+    updateWords();
 }
 
 
@@ -151,8 +152,6 @@ void CloudsVisualSystemSavant::selfDraw(){
     ofPopMatrix();
     #endif
 
-    
-
 }
 
 // draw any debug stuff here
@@ -166,36 +165,17 @@ void CloudsVisualSystemSavant::selfDrawBackground(){
 	//turn the background refresh off
 	bClearBackground = true;
     
-
-    
     CloudsRGBDVideoPlayer &rgbdVideoPlayer = getRGBDVideoPlayer();
 	ofxAVFVideoPlayer &avfVideoPlayer = rgbdVideoPlayer.getPlayer();
     
-    
     // Draw video
-    ofSetColor(ofColor::white);
-    ofFill();
-    //    avfVideoPlayer.play();
-    //    avfVideoPlayer.update();
-    avfVideoPlayer.draw(300, 0);
+//    ofPushStyle();
+//    ofSetColor(ofColor::white);
+//    ofFill();
+//    avfVideoPlayer.draw(300, 0);
+//    ofPopStyle();
     
-    // Update from sound buffer
-    //avfVideoPlayer
-    
-    //int audioIndex = MIN(floor(avfVideoPlayer.getPosition() * avfVideoPlayer.getNumAmplitudes()), avfVideoPlayer.getNumAmplitudes() - 1);
-    
-    // infer sample rate
-    //float sampleRate = avfVideoPlayer.getNumAmplitudes() / avfVideoPlayer.getDuration();
-    //ofLogVerbose("Sample rate?: " + ofToString(sampleRate));
-    
-    
-    
-    //cout << "audioIndex: " << audioIndex << endl;
-    
-    //myfft.powerSpectrum(idx,(int)BUFFER_SIZE/2, p->getAllAmplitudes(), BUFFER_SIZE, &magnitude[0],&phase[0],&power[0],&avg_power);
-    
-    
-    
+    drawWords();
 }
 // this is called when your system is no longer drawing.
 // Right after this selfUpdate() and selfDraw() won't be called any more
@@ -205,6 +185,11 @@ void CloudsVisualSystemSavant::selfEnd(){
     #endif
     
     // Reset this, get fresh event if we start back
+    
+    if (bAddTestWord) {
+        addRandomWordBox();
+    }
+    
     bAudioReady = false;
 }
 
@@ -240,54 +225,33 @@ void CloudsVisualSystemSavant::selfMouseReleased(ofMouseEventArgs& data){
 
 
 
-#pragma mark -- New Methods
+#pragma mark - New Methods
 
 
-
-
-#pragma mark -- Speech Control
-
-
+#pragma mark -- Speech To Text
 
 int speechStartedListeningIndex;
 int speechLastUpdateIndex;
 
-
-
-
 void CloudsVisualSystemSavant::setupSpeechEngine() {
-    //wavInput    = "input.wav";
-    //flacOutput  = "output.flac";
     speechListenerListening = false;
-    //ofAddListener(google.event, this, &CloudsVisualSystemSavant::speechReceived);
-    
     gstt.setup();
-    
- 	//register listener function to googles response events
-	ofAddListener(gsttApiResponseEvent,this,&CloudsVisualSystemSavant::gsttResponse);
+	ofAddListener(gsttApiResponseEvent, this, &CloudsVisualSystemSavant::gsttResponse);
 }
 
 void CloudsVisualSystemSavant::destroySpeechEngine() {
 	ofRemoveListener(gsttApiResponseEvent,this,&CloudsVisualSystemSavant::gsttResponse);
-    //ofRemoveListener(google.event, this, &CloudsVisualSystemSavant::speechReceived);
 }
 
-
 void CloudsVisualSystemSavant::startSpeechListener() {
-    // Get references
-    CloudsRGBDVideoPlayer &rgbdVideoPlayer = getRGBDVideoPlayer();
-	ofxAVFVideoPlayer &avfVideoPlayer = rgbdVideoPlayer.getPlayer();
-    speechLastUpdateIndex = speechStartedListeningIndex = getSoundBufferIndexAtVideoPosition(avfVideoPlayer.getPosition());
-    
+    speechLastUpdateIndex = speechStartedListeningIndex = getSoundBufferIndexAtVideoPosition(getRGBDVideoPlayer().getPlayer().getPosition());
     speechListenerListening = true;
     gstt.startListening();
 }
 
-
 void CloudsVisualSystemSavant::updateSpeechListener() {
     // Get listening position, find range since last update....
-    CloudsRGBDVideoPlayer &rgbdVideoPlayer = getRGBDVideoPlayer();
-	ofxAVFVideoPlayer &avfVideoPlayer = rgbdVideoPlayer.getPlayer();
+	ofxAVFVideoPlayer &avfVideoPlayer = getRGBDVideoPlayer().getPlayer();
     int speechCurrentUpdateIndex = getSoundBufferIndexAtVideoPosition(avfVideoPlayer.getPosition());
     
     int startSoundIndex = speechLastUpdateIndex;
@@ -303,52 +267,20 @@ void CloudsVisualSystemSavant::updateSpeechListener() {
     }
     
     gstt.addAudio(currentChunkBuffer, currentChunkBufferSize, 2, 44100);
-    
     speechLastUpdateIndex = speechCurrentUpdateIndex;
 }
-
-
 
 void CloudsVisualSystemSavant::stopSpeechListener() {
     cout << "Finished listening" << endl;
     speechListenerListening = false;
     gstt.stopListening(); // and try to process
-    
-    //wav.close();
-    //flacEncoder.encode(wavInput, flacOutput);
-    //google.sendFlac(flacOutput);
 }
-
-
-void CloudsVisualSystemSavant::speechReceived(string & message) {
-    cout << "Got message: " << message << endl;
-    //brain.onHearSomething(message);
-    
-}
-
-
-
-
-
-//void gsttApp::audioIn(float * input, int bufferSize, int nChannels){
-//    cout << "audio in" <, endl;
-//    //redirect audioIn as ofEvents.audioReceived
-//    //dont know why ofSoundStream doesnt send audioReceived events
-//}
 
 void CloudsVisualSystemSavant::gsttResponse(ofxGSTTResponseArgs & response){
 	cout << "Response: " << response.msg << endl << "with confidence: " << ofToString(response.confidence) << endl;
-    //	if(response.msg != ""){
-    //		responseStr += response.msg + "\n";
-    //	}
 }
 
-
-
-
-
-
-// Utilities
+#pragma mark -- Helpers
 
 int CloudsVisualSystemSavant::getSoundBufferIndexAtVideoPosition(float videoPosition) {
     CloudsRGBDVideoPlayer &rgbdVideoPlayer = getRGBDVideoPlayer();
@@ -356,64 +288,27 @@ int CloudsVisualSystemSavant::getSoundBufferIndexAtVideoPosition(float videoPosi
     return MIN(floor(videoPosition * avfVideoPlayer.getNumAmplitudes()) * 2, 2 * avfVideoPlayer.getNumAmplitudes() - 1);
 }
 
+#pragma mark -- Renderer
 
-// Too slow
-//
-//void CloudsVisualSystemSavant::prepareAudioBuffer() {
-//    // Do the sound conversion!
-//    CloudsRGBDVideoPlayer &rgbdVideoPlayer = getRGBDVideoPlayer();
-//	ofxAVFVideoPlayer &avfVideoPlayer = rgbdVideoPlayer.getPlayer();
-//    
-//    // Get the raw audio buffer from the video player (Always 44.1 khz?)
-//    int rawAudioBufferSize = avfVideoPlayer.getNumAmplitudes();
-//    float *rawAudioBuffer = avfVideoPlayer.getAllAmplitudes();
-//    
-//    
-//    
-//    int sourceSampleRate = 44100; // TODO calculate this
-//    int speechSampleRate = 16000; // todo make class const
-//    double resampleFactor = (double)speechSampleRate / (double)sourceSampleRate; // Todo cache this
-//    
-//    // Prep the intermediate buffer (correct length, but floats instead of shorts)
-//    int expectedResultBufferSize = ceil((double)rawAudioBufferSize * resampleFactor);
-//    float *tempDownsampleBuffer = new float[expectedResultBufferSize];
-//
-//    ofLogVerbose("resample factor: " + ofToString(resampleFactor));
-//    ofLogVerbose("starting audio buffer size: " + ofToString(rawAudioBufferSize));
-//    ofLogVerbose("expectedResultBufferSize: " + ofToString(expectedResultBufferSize));
-//    
-//    // Downsample from 44.1 to 16 khz.
-//    int srcUsed; // What ees this? Bytes actually used?
-//    resample_process(resampleHandle, resampleFactor, rawAudioBuffer, rawAudioBufferSize, 1, &srcUsed, tempDownsampleBuffer, expectedResultBufferSize);
-//    ofLogVerbose("srcUsed: " + ofToString(srcUsed));
-//    
-//    // Clear the old
-//    downsampledAudioBuffer = NULL; // todo clean this?
-//    downsampledAudioBuffer = new short[expectedResultBufferSize];
-//
-//    // Convert from float to signed short for the sound engine (16 bit PCM) // TODO correct for frame misalignment?
-//    for (int i = 0; i < expectedResultBufferSize; i++) {
-//        downsampledAudioBuffer[i] = short(tempDownsampleBuffer[i] * 0.5);
-//        //downsampledAudioBuffer[i] = short(tempDownsampleBuffer[i] * 32767.5 - 0.5);
-//        // -32768 to 32767
-//        if ((i % 100) == 0) cout << "Buffer: " << tempDownsampleBuffer[i] << "    " << downsampledAudioBuffer[i] << endl;
-//    }
-//    downsampledAudioBufferLength = expectedResultBufferSize;
-//}
-
-/*
-void CloudsVisualSystemSavant::videoStartedPlaying() {
-    ofLogVerbose("Video Started Playing");
+void CloudsVisualSystemSavant::addRandomWordBox() {
+    // Build a fake word box for testing
     
-
+    WordBox wordBox;
+    wordBox.x = ofRandom(0, ofGetWidth());
+    wordBox.y = ofRandom(0, ofGetHeight());
+    wordBox.setText(string("Bla bla bla"));
+    
+    words.push_back(wordBox);
 }
 
-void CloudsVisualSystemSavant::videoStoppedPlaying() {
-    ofLogVerbose("Video Stopped Playing");
+void CloudsVisualSystemSavant::updateWords() {
+    for (std::vector<WordBox>::size_type i = 0; i != words.size(); i++) {
+        words[i].update();
+    }
 }
-*/
 
-
-
-
-
+void CloudsVisualSystemSavant::drawWords() {
+    for (std::vector<WordBox>::size_type i = 0; i != words.size(); i++) {
+        words[i].draw();
+    }
+}

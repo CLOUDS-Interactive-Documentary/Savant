@@ -15,6 +15,7 @@
 		2571E76917A43C7500F68508 /* ofxGSTTEvent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2571E72317A43C7500F68508 /* ofxGSTTEvent.cpp */; };
 		2571E76A17A43C7500F68508 /* ofxGSTTTranscriptionThread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2571E72517A43C7500F68508 /* ofxGSTTTranscriptionThread.cpp */; };
 		2571E77217A440CE00F68508 /* ofxTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2571E77017A440CE00F68508 /* ofxTimer.cpp */; };
+		2571E77517A45C2400F68508 /* WordBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2571E77317A45C2400F68508 /* WordBox.cpp */; };
 		257E673C17A30B1000BFE17E /* CloudsVisualSystemSavant.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 257E673A17A30B1000BFE17E /* CloudsVisualSystemSavant.cpp */; };
 		25B399E317A3ACA100B593BD /* ofxFlacEncoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 25B399DE17A3ACA000B593BD /* ofxFlacEncoder.cpp */; };
 		25B39AA317A3ACF100B593BD /* json_reader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 25B39A6217A3ACF000B593BD /* json_reader.cpp */; };
@@ -196,6 +197,8 @@
 		2571E72617A43C7500F68508 /* ofxGSTTTranscriptionThread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxGSTTTranscriptionThread.h; sourceTree = "<group>"; };
 		2571E77017A440CE00F68508 /* ofxTimer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxTimer.cpp; sourceTree = "<group>"; };
 		2571E77117A440CE00F68508 /* ofxTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxTimer.h; sourceTree = "<group>"; };
+		2571E77317A45C2400F68508 /* WordBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WordBox.cpp; sourceTree = "<group>"; };
+		2571E77417A45C2400F68508 /* WordBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WordBox.h; sourceTree = "<group>"; };
 		257E673A17A30B1000BFE17E /* CloudsVisualSystemSavant.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CloudsVisualSystemSavant.cpp; sourceTree = "<group>"; };
 		257E673B17A30B1000BFE17E /* CloudsVisualSystemSavant.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CloudsVisualSystemSavant.h; sourceTree = "<group>"; };
 		25B399DE17A3ACA000B593BD /* ofxFlacEncoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxFlacEncoder.cpp; sourceTree = "<group>"; };
@@ -1276,6 +1279,8 @@
 				25B399DD17A3AC8200B593BD /* utils */,
 				257E673B17A30B1000BFE17E /* CloudsVisualSystemSavant.h */,
 				257E673A17A30B1000BFE17E /* CloudsVisualSystemSavant.cpp */,
+				2571E77417A45C2400F68508 /* WordBox.h */,
+				2571E77317A45C2400F68508 /* WordBox.cpp */,
 			);
 			path = vs_src;
 			sourceTree = SOURCE_ROOT;
@@ -1773,6 +1778,7 @@
 				2571E76917A43C7500F68508 /* ofxGSTTEvent.cpp in Sources */,
 				2571E76A17A43C7500F68508 /* ofxGSTTTranscriptionThread.cpp in Sources */,
 				2571E77217A440CE00F68508 /* ofxTimer.cpp in Sources */,
+				2571E77517A45C2400F68508 /* WordBox.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
