@@ -1,19 +1,8 @@
-//
-//  ofxFlacEncoder.h
-//  emptyExample
-//
-//  Created by Martial on 03/04/13.
-//
-//
-
-#ifndef __emptyExample__ofxFlacEncoder__
-#define __emptyExample__ofxFlacEncoder__
-
+#pragma once
 
 #include "ofMain.h"
 #include "metadata.h"
 #include "stream_encoder.h"
-
 
 #define READSIZE 1024
 
@@ -28,5 +17,3 @@ public:
     FLAC__int32	pcm[READSIZE/*samples*/* 2/*channels*/];
     
 };
-
-#endif /* defined(__emptyExample__ofxFlacEncoder__) */

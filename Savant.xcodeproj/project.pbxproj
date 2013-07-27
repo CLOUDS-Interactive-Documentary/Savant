@@ -17,7 +17,6 @@
 		2571E77217A440CE00F68508 /* ofxTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2571E77017A440CE00F68508 /* ofxTimer.cpp */; };
 		257E673C17A30B1000BFE17E /* CloudsVisualSystemSavant.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 257E673A17A30B1000BFE17E /* CloudsVisualSystemSavant.cpp */; };
 		25B399E317A3ACA100B593BD /* ofxFlacEncoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 25B399DE17A3ACA000B593BD /* ofxFlacEncoder.cpp */; };
-		25B399E417A3ACA100B593BD /* ofxGoogleSpeech.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 25B399E017A3ACA000B593BD /* ofxGoogleSpeech.cpp */; };
 		25B39AA317A3ACF100B593BD /* json_reader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 25B39A6217A3ACF000B593BD /* json_reader.cpp */; };
 		25B39AA417A3ACF100B593BD /* json_value.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 25B39A6317A3ACF000B593BD /* json_value.cpp */; };
 		25B39AA517A3ACF100B593BD /* json_writer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 25B39A6517A3ACF000B593BD /* json_writer.cpp */; };
@@ -201,8 +200,6 @@
 		257E673B17A30B1000BFE17E /* CloudsVisualSystemSavant.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CloudsVisualSystemSavant.h; sourceTree = "<group>"; };
 		25B399DE17A3ACA000B593BD /* ofxFlacEncoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxFlacEncoder.cpp; sourceTree = "<group>"; };
 		25B399DF17A3ACA000B593BD /* ofxFlacEncoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxFlacEncoder.h; sourceTree = "<group>"; };
-		25B399E017A3ACA000B593BD /* ofxGoogleSpeech.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxGoogleSpeech.cpp; sourceTree = "<group>"; };
-		25B399E117A3ACA000B593BD /* ofxGoogleSpeech.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxGoogleSpeech.h; sourceTree = "<group>"; };
 		25B399E217A3ACA100B593BD /* WavFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WavFile.h; sourceTree = "<group>"; };
 		25B39A5517A3ACF000B593BD /* autolink.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = autolink.h; sourceTree = "<group>"; };
 		25B39A5617A3ACF000B593BD /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
@@ -630,8 +627,8 @@
 			isa = PBXGroup;
 			children = (
 				2571E72017A43C7500F68508 /* googleResponseParser.h */,
-				2571E72117A43C7500F68508 /* ofxGSTT.cpp */,
 				2571E72217A43C7500F68508 /* ofxGSTT.h */,
+				2571E72117A43C7500F68508 /* ofxGSTT.cpp */,
 				2571E72317A43C7500F68508 /* ofxGSTTEvent.cpp */,
 				2571E72417A43C7500F68508 /* ofxGSTTEvent.h */,
 				2571E72517A43C7500F68508 /* ofxGSTTTranscriptionThread.cpp */,
@@ -663,8 +660,6 @@
 			children = (
 				25B399DE17A3ACA000B593BD /* ofxFlacEncoder.cpp */,
 				25B399DF17A3ACA000B593BD /* ofxFlacEncoder.h */,
-				25B399E017A3ACA000B593BD /* ofxGoogleSpeech.cpp */,
-				25B399E117A3ACA000B593BD /* ofxGoogleSpeech.h */,
 				25B399E217A3ACA100B593BD /* WavFile.h */,
 				2551964717A31381002955E8 /* libsample */,
 			);
@@ -1762,7 +1757,6 @@
 				2551965117A31381002955E8 /* resample.c in Sources */,
 				2551965217A31381002955E8 /* resamplesubs.c in Sources */,
 				25B399E317A3ACA100B593BD /* ofxFlacEncoder.cpp in Sources */,
-				25B399E417A3ACA100B593BD /* ofxGoogleSpeech.cpp in Sources */,
 				25B39AA317A3ACF100B593BD /* json_reader.cpp in Sources */,
 				25B39AA417A3ACF100B593BD /* json_value.cpp in Sources */,
 				25B39AA517A3ACF100B593BD /* json_writer.cpp in Sources */,

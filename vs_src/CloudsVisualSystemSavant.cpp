@@ -252,9 +252,7 @@ void CloudsVisualSystemSavant::selfMouseReleased(ofMouseEventArgs& data){
 int speechStartedListeningIndex;
 int speechLastUpdateIndex;
 
-const double resampleFactor = 0.3628117914;
-//const int expectedResampledBufferSize = 372; // bufferSize * resampleFactor * nChannels
-//float *resampleBuffer = new float[expectedResampledBufferSize];
+
 
 
 void CloudsVisualSystemSavant::setupSpeechEngine() {
@@ -276,17 +274,6 @@ void CloudsVisualSystemSavant::destroySpeechEngine() {
 
 
 void CloudsVisualSystemSavant::startSpeechListener() {
-    // Initialize resampler
-    int resampleQuality = 1; // 1 is "high"
-    double minResampleFactor = 0.2; // conversion factor... e.g. 44 / 16
-    double maxResampleFactor = 0.7; // conversion factor...
-    resampleHandle = resample_open(resampleQuality, minResampleFactor, maxResampleFactor);
-    
-    // Start wav recording
-    //wav.setFormat(2, 16000, 16);
-    //wav.setFormat(2, 16000, 16);
-    //wav.open(ofToDataPath(wavInput), WAVFILE_WRITE);
-    
     // Get references
     CloudsRGBDVideoPlayer &rgbdVideoPlayer = getRGBDVideoPlayer();
 	ofxAVFVideoPlayer &avfVideoPlayer = rgbdVideoPlayer.getPlayer();
@@ -315,17 +302,7 @@ void CloudsVisualSystemSavant::updateSpeechListener() {
         currentChunkBuffer[i] = allAmplitudes[startSoundIndex + i] / 32760.f;
     }
     
-    // Resample from 44.1 to 16khz
-    int currentChunkResampleBufferSize = currentChunkBufferSize * resampleFactor;
-    float* currentChunkResampleBuffer = new float[currentChunkResampleBufferSize];
-    
-    int srcUsed; // What ees this? Bytes actually used?
-    resample_process(resampleHandle, resampleFactor, currentChunkBuffer, currentChunkBufferSize, 1, &srcUsed, currentChunkResampleBuffer, currentChunkResampleBufferSize);
-    //cout << "srcUsed:" << srcUsed << endl;
-    
-    // Write to wav
-    //wav.write(currentChunkResampleBuffer, currentChunkResampleBufferSize);
-    gstt.addAudio(currentChunkResampleBuffer, currentChunkResampleBufferSize, 2);
+    gstt.addAudio(currentChunkBuffer, currentChunkBufferSize, 2, 44100);
     
     speechLastUpdateIndex = speechCurrentUpdateIndex;
 }
@@ -335,9 +312,6 @@ void CloudsVisualSystemSavant::updateSpeechListener() {
 void CloudsVisualSystemSavant::stopSpeechListener() {
     cout << "Finished listening" << endl;
     speechListenerListening = false;
-    
-    resample_close(resampleHandle);
-    
     gstt.stopListening(); // and try to process
     
     //wav.close();

@@ -4,9 +4,6 @@
 // #define DRAW_CLOUD
 
 #include "CloudsVisualSystem.h"
-#include "WavFile.h"
-#include "ofxFlacEncoder.h"
-//#include "ofxGoogleSpeech.h"
 #include "ofxGSTT.h"
 #include "libresample.h"
 
@@ -117,18 +114,9 @@ protected:
     void stopSpeechListener();
     bool speechListenerListening;
     float maxAmplitude;
-    
-    //WavFile wav;
-    ofxFlacEncoder flacEncoder;
-    //ofxGoogleSpeech google;
+
     ofxGSTT gstt;
     void gsttResponse(ofxGSTTResponseArgs & response);
-    
-    void *resampleHandle;
-    
-
-    
-    
     
 
     int getSoundBufferIndexAtVideoPosition(float videoPosition);
