@@ -7,7 +7,7 @@
 
 //These methods let us add custom GUI parameters and respond to their events
 void CloudsVisualSystemSavant::selfSetupGui() {
-	customGui = new ofxUISuperCanvas("Savant", gui);
+	customGui = new ofxUISuperCanvas("Speech Recognition", gui);
 	customGui->copyCanvasStyle(gui);
 	customGui->copyCanvasProperties(gui);
 	customGui->setName("Custom");
@@ -18,6 +18,7 @@ void CloudsVisualSystemSavant::selfSetupGui() {
 	customGui->addButton("Add Test Word", false);
 	customGui->addButton("Sample Speech", false);
 	customGui->addToggle("Custom Toggle", &customToggle);
+	customGui->addSlider("Sample Ahead (Seconds)", 0, 5000, &timeOffsetSeconds);
 	
 	ofAddListener(customGui->newGUIEvent, this, &CloudsVisualSystemSavant::selfGuiEvent);
 	
@@ -286,8 +287,24 @@ void CloudsVisualSystemSavant::updateSpeechListener() {
     
     int startSoundIndex = speechLastUpdateIndex;
     int endSoundIndex = speechCurrentUpdateIndex; // TODO round down to buffer size...
-    int currentChunkBufferSize = endSoundIndex - startSoundIndex;
     
+    // Time shift for look-ahead
+    int indexOffset = timeOffsetSeconds * 441000 * 2; // times 2 for num channels?
+    
+    // If index offset overshoots...
+    
+    startSoundIndex = min(startSoundIndex + indexOffset, (2 * avfVideoPlayer.getNumAmplitudes() - 1));
+    endSoundIndex = min(endSoundIndex + indexOffset, (2 * avfVideoPlayer.getNumAmplitudes() - 1));
+    
+    // Todo, what's the minimum sample size? Need to break for that too.
+    if (startSoundIndex == endSoundIndex) {
+        ofLogWarning("Index offset would overshoot buffer, stopping recording");
+        stopSpeechListener();
+        return;
+    }
+    
+    int currentChunkBufferSize = endSoundIndex - startSoundIndex;
+
     // Get chunk of audio from video (and normalize)
     short* allAmplitudes = avfVideoPlayer.getAllAmplitudes();
     float* currentChunkBuffer = new float[currentChunkBufferSize];
@@ -324,6 +341,9 @@ int CloudsVisualSystemSavant::getSoundBufferIndexAtVideoPosition(float videoPosi
 	ofxAVFVideoPlayer &avfVideoPlayer = rgbdVideoPlayer.getPlayer();
     return MIN(floor(videoPosition * avfVideoPlayer.getNumAmplitudes()) * 2, 2 * avfVideoPlayer.getNumAmplitudes() - 1);
 }
+
+
+
 
 #pragma mark -- Renderer
 

@@ -115,6 +115,9 @@ protected:
     void stopSpeechListener();
     bool speechListenerListening;
     float maxAmplitude;
+    float timeOffsetSeconds;
+    
+    
 
     ofxGSTT gstt;
     void gsttResponse(ofxGSTTResponseArgs & response);

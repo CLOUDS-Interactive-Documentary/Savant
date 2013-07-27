@@ -3,7 +3,7 @@
 //=====================================================================
 void JitterFont::drawStringAsShapes(string c, float x, float y, float jitterAmount) {
     
-    if (!bLoadedOk){
+    if (!bLoadedOk) {
     	ofLog(OF_LOG_ERROR,"ofTrueTypeFont::drawStringAsShapes - Error : font not allocated -- line %d in %s", __LINE__,__FILE__);
     	return;
     };
@@ -44,7 +44,6 @@ void JitterFont::drawStringAsShapes(string c, float x, float y, float jitterAmou
 	}
     
 	ofPopMatrix();
-    
 }
 
 
