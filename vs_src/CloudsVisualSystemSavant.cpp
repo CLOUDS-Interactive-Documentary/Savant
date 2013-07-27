@@ -110,7 +110,7 @@ void CloudsVisualSystemSavant::selfUpdate(){
         // Done, buffer length is greater than zero and stable
         cout << "Audio ready" << endl;
         bAudioReady = true;
-        prepareAudioBuffer();
+        //prepareAudioBuffer();
     }
     else if (!bAudioReady) {
         lastRawAudioBufferLength = avfVideoPlayer.getNumAmplitudes();
@@ -228,75 +228,36 @@ void CloudsVisualSystemSavant::selfMouseReleased(ofMouseEventArgs& data){
 
 // Speech Control ------------------------------------
 
+int speechStartedListeningIndex;
+int speechLastUpdateIndex;
+
+const double resampleFactor = 0.3628117914;
+const int expectedResampledBufferSize = 372; // bufferSize * resampleFactor * nChannels
+float *resampleBuffer = new float[expectedResampledBufferSize];
+
+
 void CloudsVisualSystemSavant::setupSpeechEngine() {
-    speechEngine = new ofxSphinxASR;
-    speechEngineArgs = new ofAsrEngineArgs;
-    speechEngineArgs->samplerate = 16000; // Hz
-	speechEngineArgs->sphinx_mode = 4; // Mode 4 is for continuous recognition
-    
-    // Set up data, still finding the best ones
-    //    e->sphinxmodel_am = ofToDataPath("sphinxmodel1/digit_8gau");
-    //    e->sphinxmodel_lm = ofToDataPath("sphinxmodel1/digit.lm.DMP");
-    //    e->sphinxmodel_dict = ofToDataPath("sphinxmodel1/dictionary");
-    //    e->sphinxmodel_fdict = ofToDataPath("sphinxmodel1/fillerdict");
-    
-    //    e->sphinxmodel_am = ofToDataPath("sphinxmodel2/Communicator_40.cd_cont_4000");
-    //    e->sphinxmodel_lm = ofToDataPath("sphinxmodel2/language_model.arpaformat.DMP");
-    //    e->sphinxmodel_dict = ofToDataPath("sphinxmodel2/cmudict.hub4.06d.dict");
-    //    e->sphinxmodel_fdict = ofToDataPath("sphinxmodel2/fillerdict");
-    
-    //    e->sphinxmodel_am = ofToDataPath("sphinxmodel3/wsj_all_cd30.mllt_cd_cont_4000");
-    //    e->sphinxmodel_lm = ofToDataPath("sphinxmodel3/language_model.arpaformat.DMP");
-    //    e->sphinxmodel_dict = ofToDataPath("sphinxmodel3/cmudict.hub4.06d.dict");
-    //    e->sphinxmodel_fdict = ofToDataPath("sphinxmodel3/fillerdict");
-    
-    speechEngineArgs->sphinxmodel_am = getVisualSystemDataPath() + "speech_models/sphinxmodel4/sphinxmodel_voxforge-en-r0_1_3";
-    speechEngineArgs->sphinxmodel_lm = getVisualSystemDataPath() + "speech_models/sphinxmodel4/voxforge_en_sphinx.lm.DMP";
-    speechEngineArgs->sphinxmodel_dict = getVisualSystemDataPath() + "speech_models/sphinxmodel4/cmudict.0.7a";
-    speechEngineArgs->sphinxmodel_fdict = getVisualSystemDataPath() + "speech_models/sphinxmodel4/noisedict";
-    
-    // Initialize the engine
-    int startCode = speechEngine->engineInit(speechEngineArgs);
-    if (startCode == OFXASR_SUCCESS) {
-        ofLogVerbose("Speech Engine Started Successfully");
-    }
-    else {
-        ofLogError("ASR Engine initial failed. Error Code: " + ofToString(startCode));
-		speechEngineResults = "ASR Engine initial failed. Check sphinx resource path";
-    }
-    
+    wavInput    = "input.wav";
+    flacOutput  = "output.flac";
+    speechListenerListening = false;
+    ofAddListener(google.event, this, &CloudsVisualSystemSavant::speechReceived);
+}
+
+void CloudsVisualSystemSavant::destroySpeechEngine() {
+    ofRemoveListener(google.event, this, &CloudsVisualSystemSavant::speechReceived);
+}
+
+
+void CloudsVisualSystemSavant::startSpeechListener() {
     // Initialize resampler
     int resampleQuality = 1; // 1 is "high"
     double minResampleFactor = 0.2; // conversion factor... e.g. 44 / 16
     double maxResampleFactor = 0.7; // conversion factor...
     resampleHandle = resample_open(resampleQuality, minResampleFactor, maxResampleFactor);
-}
-
-void CloudsVisualSystemSavant::destroySpeechEngine() {
-    if (speechEngine != NULL) {
-        speechEngine->engineExit();
-        delete speechEngine;
-        speechEngine = NULL;
-    }
     
-    if (speechEngineArgs != NULL) {
-        delete speechEngineArgs;
-        speechEngineArgs = NULL;
-    }
-    
-    // And associated resampling
-    resample_close(resampleHandle);
-}
-
-
-int speechStartedListeningIndex;
-int speechLastUpdateIndex;
-
-void CloudsVisualSystemSavant::startSpeechListener() {
-    int retval = speechEngine->engineOpen();
-    if (retval != OFXASR_SUCCESS) {
-        ofLogError("ASR Engine failed to open. Error Code: " + ofToString(retval));
-    }
+    // Start wav recording
+    wav.setFormat(2, 16000, 16);
+    wav.open(ofToDataPath(wavInput), WAVFILE_WRITE);
     
     // Get references
     CloudsRGBDVideoPlayer &rgbdVideoPlayer = getRGBDVideoPlayer();
@@ -313,8 +274,7 @@ void CloudsVisualSystemSavant::updateSpeechListener() {
 	ofxAVFVideoPlayer &avfVideoPlayer = rgbdVideoPlayer.getPlayer();
     int speechCurrentUpdateIndex = getSoundBufferIndexAtVideoPosition(avfVideoPlayer.getPosition());
     
-
-
+    float* videoSoundBuffer = avfVideoPlayer.getAllAmplitudes();
     
     int startSoundIndex = speechLastUpdateIndex;
     int endSoundIndex = speechCurrentUpdateIndex; // TODO round down to buffer size...
@@ -323,15 +283,22 @@ void CloudsVisualSystemSavant::updateSpeechListener() {
     cout << "Start: " << startSoundIndex << " End: " << endSoundIndex << endl;
     
     // Pull in the correct chunk of buffer from the video
-    short *speechAudioBuffer = new short[speechAudioBufferSize];
+    float *speechAudioBuffer = new float[speechAudioBufferSize];
     
     for (int i = 0; i < speechAudioBufferSize; i++) {
-        speechAudioBuffer[i] = downsampledAudioBuffer[startSoundIndex + i];
-        cout << speechAudioBuffer[i] << endl;
+        speechAudioBuffer[i] = videoSoundBuffer[startSoundIndex + i];
+        //cout << speechAudioBuffer[i] << endl;
     }
     
-    // Send it to the engine // TODO correct for frame misalignment
-    speechEngine->engineSentAudio(speechAudioBuffer, speechAudioBufferSize);
+    
+    //  Downsample from 44.1 to 16 khz.
+    int srcUsed; // What ees this? Bytes actually used?
+    resample_process(resampleHandle, resampleFactor, speechAudioBuffer, speechAudioBufferSize, 1, &srcUsed, resampleBuffer, expectedResampledBufferSize);
+
+    cout << "srcUsed: " << srcUsed << endl;
+    
+    wav.write(resampleBuffer, expectedResampledBufferSize);
+    
     
     // Update last index... // TODO correct for frame misalignment
     speechLastUpdateIndex = speechCurrentUpdateIndex;
@@ -343,71 +310,72 @@ void CloudsVisualSystemSavant::updateSpeechListener() {
 void CloudsVisualSystemSavant::stopSpeechListener() {
     speechListenerListening = false;
     
-    // Close the engines
-    int retval;
-    retval = speechEngine->engineClose();
-    
-    if (retval != OFXASR_SUCCESS) {
-        ofLogError("Speech engine failed to close. Error code: " + ofToString(retval));
-    }
-    
-    // Get results
-	char *results = speechEngine->engineGetText();
-	if (results) {
-		string s1(results);
-		speechEngineResults = s1;
-        ofLogVerbose("Got words: " + ofToString(speechEngineResults));
-	}
-	else {
-        ofLogVerbose("No result from the speech engine.");
-	}
+    resample_close(resampleHandle);
+    wav.close();
+    flacEncoder.encode(wavInput, flacOutput);
+    google.sendFlac(flacOutput);
 }
+
+
+void CloudsVisualSystemSavant::speechReceived(string & message) {
+    cout << "Got message: " << message << endl;
+    //brain.onHearSomething(message);
+    
+}
+
+
+// Utilities
 
 int CloudsVisualSystemSavant::getSoundBufferIndexAtVideoPosition(float videoPosition) {
-    return MIN(floor(videoPosition * downsampledAudioBufferLength), downsampledAudioBufferLength - 1);
-}
-
-void CloudsVisualSystemSavant::prepareAudioBuffer() {
-    // Do the sound conversion!
     CloudsRGBDVideoPlayer &rgbdVideoPlayer = getRGBDVideoPlayer();
 	ofxAVFVideoPlayer &avfVideoPlayer = rgbdVideoPlayer.getPlayer();
-    
-    // Get the raw audio buffer from the video player (Always 44.1 khz?)
-    int rawAudioBufferSize = avfVideoPlayer.getNumAmplitudes();
-    float *rawAudioBuffer = avfVideoPlayer.getAllAmplitudes();
-    
-    
-    
-    int sourceSampleRate = 44100; // TODO calculate this
-    int speechSampleRate = 16000; // todo make class const
-    double resampleFactor = (double)speechSampleRate / (double)sourceSampleRate; // Todo cache this
-    
-    // Prep the intermediate buffer (correct length, but floats instead of shorts)
-    int expectedResultBufferSize = ceil((double)rawAudioBufferSize * resampleFactor);
-    float *tempDownsampleBuffer = new float[expectedResultBufferSize];
-
-    ofLogVerbose("resample factor: " + ofToString(resampleFactor));
-    ofLogVerbose("starting audio buffer size: " + ofToString(rawAudioBufferSize));
-    ofLogVerbose("expectedResultBufferSize: " + ofToString(expectedResultBufferSize));
-    
-    // Downsample from 44.1 to 16 khz.
-    int srcUsed; // What ees this? Bytes actually used?
-    resample_process(resampleHandle, resampleFactor, rawAudioBuffer, rawAudioBufferSize, 1, &srcUsed, tempDownsampleBuffer, expectedResultBufferSize);
-    ofLogVerbose("srcUsed: " + ofToString(srcUsed));
-    
-    // Clear the old
-    downsampledAudioBuffer = NULL; // todo clean this?
-    downsampledAudioBuffer = new short[expectedResultBufferSize];
-
-    // Convert from float to signed short for the sound engine (16 bit PCM) // TODO correct for frame misalignment?
-    for (int i = 0; i < expectedResultBufferSize; i++) {
-        downsampledAudioBuffer[i] = short(tempDownsampleBuffer[i] * 0.5);
-        //downsampledAudioBuffer[i] = short(tempDownsampleBuffer[i] * 32767.5 - 0.5);
-        // -32768 to 32767
-        if ((i % 100) == 0) cout << "Buffer: " << tempDownsampleBuffer[i] << "    " << downsampledAudioBuffer[i] << endl;
-    }
-    downsampledAudioBufferLength = expectedResultBufferSize;
+    return MIN(floor(videoPosition * avfVideoPlayer.getNumAmplitudes()), avfVideoPlayer.getNumAmplitudes() - 1);
 }
+
+
+// Too slow
+//
+//void CloudsVisualSystemSavant::prepareAudioBuffer() {
+//    // Do the sound conversion!
+//    CloudsRGBDVideoPlayer &rgbdVideoPlayer = getRGBDVideoPlayer();
+//	ofxAVFVideoPlayer &avfVideoPlayer = rgbdVideoPlayer.getPlayer();
+//    
+//    // Get the raw audio buffer from the video player (Always 44.1 khz?)
+//    int rawAudioBufferSize = avfVideoPlayer.getNumAmplitudes();
+//    float *rawAudioBuffer = avfVideoPlayer.getAllAmplitudes();
+//    
+//    
+//    
+//    int sourceSampleRate = 44100; // TODO calculate this
+//    int speechSampleRate = 16000; // todo make class const
+//    double resampleFactor = (double)speechSampleRate / (double)sourceSampleRate; // Todo cache this
+//    
+//    // Prep the intermediate buffer (correct length, but floats instead of shorts)
+//    int expectedResultBufferSize = ceil((double)rawAudioBufferSize * resampleFactor);
+//    float *tempDownsampleBuffer = new float[expectedResultBufferSize];
+//
+//    ofLogVerbose("resample factor: " + ofToString(resampleFactor));
+//    ofLogVerbose("starting audio buffer size: " + ofToString(rawAudioBufferSize));
+//    ofLogVerbose("expectedResultBufferSize: " + ofToString(expectedResultBufferSize));
+//    
+//    // Downsample from 44.1 to 16 khz.
+//    int srcUsed; // What ees this? Bytes actually used?
+//    resample_process(resampleHandle, resampleFactor, rawAudioBuffer, rawAudioBufferSize, 1, &srcUsed, tempDownsampleBuffer, expectedResultBufferSize);
+//    ofLogVerbose("srcUsed: " + ofToString(srcUsed));
+//    
+//    // Clear the old
+//    downsampledAudioBuffer = NULL; // todo clean this?
+//    downsampledAudioBuffer = new short[expectedResultBufferSize];
+//
+//    // Convert from float to signed short for the sound engine (16 bit PCM) // TODO correct for frame misalignment?
+//    for (int i = 0; i < expectedResultBufferSize; i++) {
+//        downsampledAudioBuffer[i] = short(tempDownsampleBuffer[i] * 0.5);
+//        //downsampledAudioBuffer[i] = short(tempDownsampleBuffer[i] * 32767.5 - 0.5);
+//        // -32768 to 32767
+//        if ((i % 100) == 0) cout << "Buffer: " << tempDownsampleBuffer[i] << "    " << downsampledAudioBuffer[i] << endl;
+//    }
+//    downsampledAudioBufferLength = expectedResultBufferSize;
+//}
 
 /*
 void CloudsVisualSystemSavant::videoStartedPlaying() {

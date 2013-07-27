@@ -4,7 +4,9 @@
 // #define DRAW_CLOUD
 
 #include "CloudsVisualSystem.h"
-#include "ofxASR.h"
+#include "WavFile.h"
+#include "ofxFlacEncoder.h"
+#include "ofxGoogleSpeech.h"
 #include "libresample.h"
 
 //TODO: rename this to your own visual system
@@ -101,34 +103,35 @@ protected:
 	bool customToggle;
 	float customFloat1;
 	float customFloat2;
-
-	// Some additions to the empty viz system framework...
-//    void videoStartedPlaying();
-//    void videoStoppedPlaying();
-    
-    //bool isVideoPlaying;
     
     // Speech Recognition
-    ofxASR *speechEngine;
-    ofAsrEngineArgs *speechEngineArgs;
-    string speechEngineResults;
-    void *resampleHandle;
+    //void audioIn(float * input, int bufferSize, int nChannels); // not available through cloud viz sys?
     
-    bool speechListenerListening;    
     void setupSpeechEngine();
     void destroySpeechEngine();
+    void speechReceived(string & message);
     void startSpeechListener();
     void updateSpeechListener();
     void stopSpeechListener();
+    bool speechListenerListening;
+    
+    WavFile wav;
+    ofxFlacEncoder flacEncoder;
+    ofxGoogleSpeech google;
+    string wavInput, flacOutput;
+    void *resampleHandle;
+    
+
+
     int getSoundBufferIndexAtVideoPosition(float videoPosition);
 
     bool bAudioReady;
-    void prepareAudioBuffer();
+    //void prepareAudioBuffer();
     
     int lastRawAudioBufferLength; // It takes some time to read...
     
-    int downsampledAudioBufferLength;
-    short *downsampledAudioBuffer;
+    //int downsampledAudioBufferLength;
+    //short *downsampledAudioBuffer;
     
     
     
