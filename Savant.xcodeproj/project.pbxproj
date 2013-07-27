@@ -10,6 +10,11 @@
 		2551965017A31381002955E8 /* filterkit.c in Sources */ = {isa = PBXBuildFile; fileRef = 2551964A17A31381002955E8 /* filterkit.c */; };
 		2551965117A31381002955E8 /* resample.c in Sources */ = {isa = PBXBuildFile; fileRef = 2551964D17A31381002955E8 /* resample.c */; };
 		2551965217A31381002955E8 /* resamplesubs.c in Sources */ = {isa = PBXBuildFile; fileRef = 2551964F17A31381002955E8 /* resamplesubs.c */; };
+		2571E76717A43C7500F68508 /* modp_b64.c in Sources */ = {isa = PBXBuildFile; fileRef = 2571E71117A43C7500F68508 /* modp_b64.c */; };
+		2571E76817A43C7500F68508 /* ofxGSTT.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2571E72117A43C7500F68508 /* ofxGSTT.cpp */; };
+		2571E76917A43C7500F68508 /* ofxGSTTEvent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2571E72317A43C7500F68508 /* ofxGSTTEvent.cpp */; };
+		2571E76A17A43C7500F68508 /* ofxGSTTTranscriptionThread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2571E72517A43C7500F68508 /* ofxGSTTTranscriptionThread.cpp */; };
+		2571E77217A440CE00F68508 /* ofxTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2571E77017A440CE00F68508 /* ofxTimer.cpp */; };
 		257E673C17A30B1000BFE17E /* CloudsVisualSystemSavant.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 257E673A17A30B1000BFE17E /* CloudsVisualSystemSavant.cpp */; };
 		25B399E317A3ACA100B593BD /* ofxFlacEncoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 25B399DE17A3ACA000B593BD /* ofxFlacEncoder.cpp */; };
 		25B399E417A3ACA100B593BD /* ofxGoogleSpeech.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 25B399E017A3ACA000B593BD /* ofxGoogleSpeech.cpp */; };
@@ -180,6 +185,18 @@
 		2551964D17A31381002955E8 /* resample.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = resample.c; sourceTree = "<group>"; };
 		2551964E17A31381002955E8 /* resample_defs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = resample_defs.h; sourceTree = "<group>"; };
 		2551964F17A31381002955E8 /* resamplesubs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = resamplesubs.c; sourceTree = "<group>"; };
+		2571E71117A43C7500F68508 /* modp_b64.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = modp_b64.c; sourceTree = "<group>"; };
+		2571E71217A43C7500F68508 /* modp_b64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = modp_b64.h; sourceTree = "<group>"; };
+		2571E71317A43C7500F68508 /* modp_b64_data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = modp_b64_data.h; sourceTree = "<group>"; };
+		2571E72017A43C7500F68508 /* googleResponseParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = googleResponseParser.h; sourceTree = "<group>"; };
+		2571E72117A43C7500F68508 /* ofxGSTT.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxGSTT.cpp; sourceTree = "<group>"; };
+		2571E72217A43C7500F68508 /* ofxGSTT.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxGSTT.h; sourceTree = "<group>"; };
+		2571E72317A43C7500F68508 /* ofxGSTTEvent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxGSTTEvent.cpp; sourceTree = "<group>"; };
+		2571E72417A43C7500F68508 /* ofxGSTTEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxGSTTEvent.h; sourceTree = "<group>"; };
+		2571E72517A43C7500F68508 /* ofxGSTTTranscriptionThread.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxGSTTTranscriptionThread.cpp; sourceTree = "<group>"; };
+		2571E72617A43C7500F68508 /* ofxGSTTTranscriptionThread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxGSTTTranscriptionThread.h; sourceTree = "<group>"; };
+		2571E77017A440CE00F68508 /* ofxTimer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxTimer.cpp; sourceTree = "<group>"; };
+		2571E77117A440CE00F68508 /* ofxTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxTimer.h; sourceTree = "<group>"; };
 		257E673A17A30B1000BFE17E /* CloudsVisualSystemSavant.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CloudsVisualSystemSavant.cpp; sourceTree = "<group>"; };
 		257E673B17A30B1000BFE17E /* CloudsVisualSystemSavant.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CloudsVisualSystemSavant.h; sourceTree = "<group>"; };
 		25B399DE17A3ACA000B593BD /* ofxFlacEncoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxFlacEncoder.cpp; sourceTree = "<group>"; };
@@ -579,6 +596,66 @@
 				2551964F17A31381002955E8 /* resamplesubs.c */,
 			);
 			path = libsample;
+			sourceTree = "<group>";
+		};
+		2571E64617A43C7400F68508 /* ofxGSTT */ = {
+			isa = PBXGroup;
+			children = (
+				2571E6E317A43C7500F68508 /* libs */,
+				2571E71517A43C7500F68508 /* src */,
+			);
+			name = ofxGSTT;
+			path = ../../../addons/ofxGSTT;
+			sourceTree = "<group>";
+		};
+		2571E6E317A43C7500F68508 /* libs */ = {
+			isa = PBXGroup;
+			children = (
+				2571E71017A43C7500F68508 /* stringencoders */,
+			);
+			path = libs;
+			sourceTree = "<group>";
+		};
+		2571E71017A43C7500F68508 /* stringencoders */ = {
+			isa = PBXGroup;
+			children = (
+				2571E71117A43C7500F68508 /* modp_b64.c */,
+				2571E71217A43C7500F68508 /* modp_b64.h */,
+				2571E71317A43C7500F68508 /* modp_b64_data.h */,
+			);
+			path = stringencoders;
+			sourceTree = "<group>";
+		};
+		2571E71517A43C7500F68508 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				2571E72017A43C7500F68508 /* googleResponseParser.h */,
+				2571E72117A43C7500F68508 /* ofxGSTT.cpp */,
+				2571E72217A43C7500F68508 /* ofxGSTT.h */,
+				2571E72317A43C7500F68508 /* ofxGSTTEvent.cpp */,
+				2571E72417A43C7500F68508 /* ofxGSTTEvent.h */,
+				2571E72517A43C7500F68508 /* ofxGSTTTranscriptionThread.cpp */,
+				2571E72617A43C7500F68508 /* ofxGSTTTranscriptionThread.h */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		2571E76E17A440CE00F68508 /* ofxTimer */ = {
+			isa = PBXGroup;
+			children = (
+				2571E76F17A440CE00F68508 /* src */,
+			);
+			name = ofxTimer;
+			path = ../../../addons/ofxTimer;
+			sourceTree = "<group>";
+		};
+		2571E76F17A440CE00F68508 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				2571E77017A440CE00F68508 /* ofxTimer.cpp */,
+				2571E77117A440CE00F68508 /* ofxTimer.h */,
+			);
+			path = src;
 			sourceTree = "<group>";
 		};
 		25B399DD17A3AC8200B593BD /* utils */ = {
@@ -1400,6 +1477,8 @@
 		BB4B014C10F69532006C3DED /* addons */ = {
 			isa = PBXGroup;
 			children = (
+				2571E76E17A440CE00F68508 /* ofxTimer */,
+				2571E64617A43C7400F68508 /* ofxGSTT */,
 				25B39B1117A3AD5300B593BD /* flac */,
 				25B39ABB17A3AD1200B593BD /* ofxCurl */,
 				25B39A5017A3ACF000B593BD /* ofxJson */,
@@ -1695,6 +1774,11 @@
 				25B39B0E17A3AD1300B593BD /* ofxCurlFormType.cpp in Sources */,
 				25B39B0F17A3AD1300B593BD /* ofxCurlFormTypeFile.cpp in Sources */,
 				25B39B1017A3AD1300B593BD /* ofxCurlFormTypeInput.cpp in Sources */,
+				2571E76717A43C7500F68508 /* modp_b64.c in Sources */,
+				2571E76817A43C7500F68508 /* ofxGSTT.cpp in Sources */,
+				2571E76917A43C7500F68508 /* ofxGSTTEvent.cpp in Sources */,
+				2571E76A17A43C7500F68508 /* ofxGSTTTranscriptionThread.cpp in Sources */,
+				2571E77217A440CE00F68508 /* ofxTimer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1806,10 +1890,18 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_10)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_11)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_12)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_13)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_14)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_15)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/../../../addons/ofxTimeline/libs/openal/libs/vs2010/EFX-Util_MT\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_10 = "\"$(SRCROOT)/../libs/flac/lib/mac\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_11 = "\"$(SRCROOT)/../../../addons/ofxGSTT/libs/flac/lib/mac\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_12 = "\"$(SRCROOT)/../../../addons/ofxGSTT/libs/flac/lib/linux\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_13 = "\"$(SRCROOT)/../../../addons/ofxGSTT/libs/flac/lib/linux64\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_14 = "\"$(SRCROOT)/../../../addons/ofxGSTT/libs/flac/lib/mac\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_15 = "\"$(SRCROOT)/../../../addons/ofxGSTT/libs/sndfile/lib/linux\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_2 = "\"$(SRCROOT)/../../../addons/ofxTimeline/libs/openal/libs/vs2010/EFX-Util_MTDLL\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_3 = "\"$(SRCROOT)/../../../addons/ofxTimeline/libs/openal/libs/vs2010\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_4 = "\"$(SRCROOT)/../../../addons/ofxTimeline/libs/sndfile/lib/osx\"";
@@ -1851,10 +1943,18 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_10)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_11)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_12)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_13)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_14)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_15)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/../../../addons/ofxTimeline/libs/openal/libs/vs2010/EFX-Util_MT\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_10 = "\"$(SRCROOT)/../libs/flac/lib/mac\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_11 = "\"$(SRCROOT)/../../../addons/ofxGSTT/libs/flac/lib/mac\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_12 = "\"$(SRCROOT)/../../../addons/ofxGSTT/libs/flac/lib/linux\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_13 = "\"$(SRCROOT)/../../../addons/ofxGSTT/libs/flac/lib/linux64\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_14 = "\"$(SRCROOT)/../../../addons/ofxGSTT/libs/flac/lib/mac\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_15 = "\"$(SRCROOT)/../../../addons/ofxGSTT/libs/sndfile/lib/linux\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_2 = "\"$(SRCROOT)/../../../addons/ofxTimeline/libs/openal/libs/vs2010/EFX-Util_MTDLL\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_3 = "\"$(SRCROOT)/../../../addons/ofxTimeline/libs/openal/libs/vs2010\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_4 = "\"$(SRCROOT)/../../../addons/ofxTimeline/libs/sndfile/lib/osx\"";

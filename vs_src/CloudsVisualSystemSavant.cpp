@@ -258,14 +258,20 @@ const double resampleFactor = 0.3628117914;
 
 
 void CloudsVisualSystemSavant::setupSpeechEngine() {
-    wavInput    = "input.wav";
-    flacOutput  = "output.flac";
+    //wavInput    = "input.wav";
+    //flacOutput  = "output.flac";
     speechListenerListening = false;
-    ofAddListener(google.event, this, &CloudsVisualSystemSavant::speechReceived);
+    //ofAddListener(google.event, this, &CloudsVisualSystemSavant::speechReceived);
+    
+    gstt.setup();
+    
+ 	//register listener function to googles response events
+	ofAddListener(gsttApiResponseEvent,this,&CloudsVisualSystemSavant::gsttResponse);
 }
 
 void CloudsVisualSystemSavant::destroySpeechEngine() {
-    ofRemoveListener(google.event, this, &CloudsVisualSystemSavant::speechReceived);
+	ofRemoveListener(gsttApiResponseEvent,this,&CloudsVisualSystemSavant::gsttResponse);
+    //ofRemoveListener(google.event, this, &CloudsVisualSystemSavant::speechReceived);
 }
 
 
@@ -278,17 +284,16 @@ void CloudsVisualSystemSavant::startSpeechListener() {
     
     // Start wav recording
     //wav.setFormat(2, 16000, 16);
-    wav.setFormat(2, 16000, 16);
-    wav.open(ofToDataPath(wavInput), WAVFILE_WRITE);
+    //wav.setFormat(2, 16000, 16);
+    //wav.open(ofToDataPath(wavInput), WAVFILE_WRITE);
     
     // Get references
     CloudsRGBDVideoPlayer &rgbdVideoPlayer = getRGBDVideoPlayer();
 	ofxAVFVideoPlayer &avfVideoPlayer = rgbdVideoPlayer.getPlayer();
     speechLastUpdateIndex = speechStartedListeningIndex = getSoundBufferIndexAtVideoPosition(avfVideoPlayer.getPosition());
     
-    
-    
     speechListenerListening = true;
+    gstt.startListening();
 }
 
 
@@ -319,7 +324,8 @@ void CloudsVisualSystemSavant::updateSpeechListener() {
     //cout << "srcUsed:" << srcUsed << endl;
     
     // Write to wav
-    wav.write(currentChunkResampleBuffer, currentChunkResampleBufferSize);
+    //wav.write(currentChunkResampleBuffer, currentChunkResampleBufferSize);
+    gstt.addAudio(currentChunkResampleBuffer, currentChunkResampleBufferSize, 2);
     
     speechLastUpdateIndex = speechCurrentUpdateIndex;
 }
@@ -331,9 +337,12 @@ void CloudsVisualSystemSavant::stopSpeechListener() {
     speechListenerListening = false;
     
     resample_close(resampleHandle);
-    wav.close();
-    flacEncoder.encode(wavInput, flacOutput);
-    google.sendFlac(flacOutput);
+    
+    gstt.stopListening(); // and try to process
+    
+    //wav.close();
+    //flacEncoder.encode(wavInput, flacOutput);
+    //google.sendFlac(flacOutput);
 }
 
 
@@ -342,6 +351,27 @@ void CloudsVisualSystemSavant::speechReceived(string & message) {
     //brain.onHearSomething(message);
     
 }
+
+
+
+
+
+//void gsttApp::audioIn(float * input, int bufferSize, int nChannels){
+//    cout << "audio in" <, endl;
+//    //redirect audioIn as ofEvents.audioReceived
+//    //dont know why ofSoundStream doesnt send audioReceived events
+//}
+
+void CloudsVisualSystemSavant::gsttResponse(ofxGSTTResponseArgs & response){
+	cout << "Response: " << response.msg << endl << "with confidence: " << ofToString(response.confidence) << endl;
+    //	if(response.msg != ""){
+    //		responseStr += response.msg + "\n";
+    //	}
+}
+
+
+
+
 
 
 // Utilities

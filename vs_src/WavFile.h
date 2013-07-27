@@ -7,6 +7,8 @@
  * 
  * Version 4
  */
+#pragma once
+
 #include <stdio.h>
 
 #include <math.h>
