@@ -105,6 +105,7 @@ protected:
 	float customFloat2;
     
     // Speech Recognition
+    // ugh, see: http://forum.openframeworks.cc/index.php/topic,8293.0.html
     //void audioIn(float * input, int bufferSize, int nChannels); // not available through cloud viz sys?
     
     void setupSpeechEngine();
@@ -114,6 +115,7 @@ protected:
     void updateSpeechListener();
     void stopSpeechListener();
     bool speechListenerListening;
+    float maxAmplitude;
     
     WavFile wav;
     ofxFlacEncoder flacEncoder;
