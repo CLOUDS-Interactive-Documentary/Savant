@@ -313,6 +313,8 @@ void CloudsVisualSystemSavant::stopSpeechListener() {
 
 void CloudsVisualSystemSavant::gsttResponse(ofxGSTTResponseArgs & response){
 	cout << "Response: " << response.msg << endl << "with confidence: " << ofToString(response.confidence) << endl;
+    getLatestBox().setText(response.msg);
+    getLatestBox().setConfidence(response.confidence);
 }
 
 #pragma mark -- Helpers

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ofMain.h"
+#include "JitterFont.h"
 
 class WordBox {
 public:
@@ -12,11 +13,14 @@ public:
     void update();
     void draw();
     void setText(string text);
+    void setConfidence(float confidence);
     void addSample(float samplitude);
     
 private:
-    string text;
+    string _text;
+    float _confidence;
     vector<float> samples;
-    
+    ofPath waveformPath;
+    JitterFont jitterFont;
     // Nothing yet
 };
