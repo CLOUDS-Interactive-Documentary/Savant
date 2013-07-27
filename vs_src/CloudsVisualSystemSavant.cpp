@@ -15,7 +15,8 @@ void CloudsVisualSystemSavant::selfSetupGui() {
 	
 	customGui->addSlider("Custom Float 1", 1, 1000, &customFloat1);
 	customGui->addSlider("Custom Float 2", 1, 1000, &customFloat2);
-	customGui->addButton("Add Test Word", &bAddTestWord);
+	customGui->addButton("Add Test Word", false);
+	customGui->addButton("Sample Speech", false);
 	customGui->addToggle("Custom Toggle", &customToggle);
 	
 	ofAddListener(customGui->newGUIEvent, this, &CloudsVisualSystemSavant::selfGuiEvent);
@@ -25,8 +26,19 @@ void CloudsVisualSystemSavant::selfSetupGui() {
 }
 
 void CloudsVisualSystemSavant::selfGuiEvent(ofxUIEventArgs &e) {
-	if(e.widget->getName() == "Custom Button"){
-		cout << "Button pressed!" << endl;
+	if(e.widget->getName() == "Add Test Word"){
+        if (e.getButton()->getValue()) {
+            cout << "Button pressed!" << endl;
+            addRandomWordBox();
+        }
+	}
+	else if(e.widget->getName() == "Sample Speech"){
+        if (e.getButton()->getValue()) {
+            startSpeechListener();
+        }
+        else {
+            stopSpeechListener();
+        }
 	}
 }
 
@@ -52,8 +64,6 @@ void CloudsVisualSystemSavant::guiRenderEvent(ofxUIEventArgs &e){
 // geometry should be loaded here
 void CloudsVisualSystemSavant::selfSetup() {
     ofSetLogLevel(OF_LOG_VERBOSE);
-    
-    
     
     if(ofFile::doesFileExist(getVisualSystemDataPath() + "TestVideo/Jer_TestVideo.mov")){
 		getRGBDVideoPlayer().setup(getVisualSystemDataPath() + "TestVideo/Jer_TestVideo.mov",
@@ -105,35 +115,35 @@ void CloudsVisualSystemSavant::selfUpdate(){
     // Watch for audio ready
     CloudsRGBDVideoPlayer &rgbdVideoPlayer = getRGBDVideoPlayer();
     ofxAVFVideoPlayer &avfVideoPlayer = rgbdVideoPlayer.getPlayer();
-
+    
     if (!bAudioReady && (lastRawAudioBufferLength > 0) && (lastRawAudioBufferLength == avfVideoPlayer.getNumAmplitudes())) {
         // Done, buffer length is greater than zero and stable
         cout << "Audio ready" << endl;
         bAudioReady = true;
         
-
+        
         // Test exporting video audio to wave.
-//        short* allAmplitudes = avfVideoPlayer.getAllAmplitudes();
-//        float* normalAmplitudes = new float[avfVideoPlayer.getNumAmplitudes()];
-//        
-//        for (int i = 0; i < avfVideoPlayer.getNumAmplitudes(); i++) {
-//            normalAmplitudes[i] = allAmplitudes[i] / 32760.f;
-//        }
-//
-//        wav.setFormat(2, 44100, 16);
-//        wav.open(ofToDataPath(wavInput), WAVFILE_WRITE);
-//        wav.write(normalAmplitudes, avfVideoPlayer.getNumAmplitudes());
-//        wav.close();
-
+        //        short* allAmplitudes = avfVideoPlayer.getAllAmplitudes();
+        //        float* normalAmplitudes = new float[avfVideoPlayer.getNumAmplitudes()];
+        //
+        //        for (int i = 0; i < avfVideoPlayer.getNumAmplitudes(); i++) {
+        //            normalAmplitudes[i] = allAmplitudes[i] / 32760.f;
+        //        }
+        //
+        //        wav.setFormat(2, 44100, 16);
+        //        wav.open(ofToDataPath(wavInput), WAVFILE_WRITE);
+        //        wav.write(normalAmplitudes, avfVideoPlayer.getNumAmplitudes());
+        //        wav.close();
+        
     }
     else if (!bAudioReady) {
         lastRawAudioBufferLength = avfVideoPlayer.getNumAmplitudes();
         cout << "Unstable buffer length: " << lastRawAudioBufferLength << endl;
     }
-
+    
     
     if (speechListenerListening) updateSpeechListener();
-
+    
     updateWords();
 }
 
@@ -142,7 +152,7 @@ void CloudsVisualSystemSavant::selfUpdate(){
 // you can change the camera by returning getCameraRef()
 void CloudsVisualSystemSavant::selfDraw(){
     
-    #ifdef DRAW_CLOUD
+#ifdef DRAW_CLOUD
     ofPushMatrix();
 	setupRGBDTransforms();
 	pointcloudShader.begin();
@@ -150,8 +160,8 @@ void CloudsVisualSystemSavant::selfDraw(){
 	simplePointcloud.drawVertices();
 	pointcloudShader.end();
     ofPopMatrix();
-    #endif
-
+#endif
+    
 }
 
 // draw any debug stuff here
@@ -169,20 +179,20 @@ void CloudsVisualSystemSavant::selfDrawBackground(){
 	ofxAVFVideoPlayer &avfVideoPlayer = rgbdVideoPlayer.getPlayer();
     
     // Draw video
-//    ofPushStyle();
-//    ofSetColor(ofColor::white);
-//    ofFill();
-//    avfVideoPlayer.draw(300, 0);
-//    ofPopStyle();
+    //    ofPushStyle();
+    //    ofSetColor(ofColor::white);
+    //    ofFill();
+    //    avfVideoPlayer.draw(300, 0);
+    //    ofPopStyle();
     
     drawWords();
 }
 // this is called when your system is no longer drawing.
 // Right after this selfUpdate() and selfDraw() won't be called any more
 void CloudsVisualSystemSavant::selfEnd(){
-    #ifdef DRAW_CLOUD
+#ifdef DRAW_CLOUD
 	simplePointcloud.clear();
-    #endif
+#endif
     
     // Reset this, get fresh event if we start back
     
@@ -200,11 +210,30 @@ void CloudsVisualSystemSavant::selfExit(){
 
 //events are called when the system is active
 //Feel free to make things interactive for you, and for the user!
+
+int lastKey;
+
 void CloudsVisualSystemSavant::selfKeyPressed(ofKeyEventArgs & args){
-	
+    
+    if (lastKey != args.key) {
+        selfKeyDown(args);
+    }
+   
+    lastKey = args.key;
 }
+
+void CloudsVisualSystemSavant::selfKeyDown(ofKeyEventArgs & args){
+    if (args.key == 'z') {
+        startSpeechListener();
+    }
+}
+
 void CloudsVisualSystemSavant::selfKeyReleased(ofKeyEventArgs & args){
-	
+    if (args.key == 'z') {
+        stopSpeechListener();
+    }
+    
+    lastKey = -1;
 }
 
 void CloudsVisualSystemSavant::selfMouseDragged(ofMouseEventArgs& data){
@@ -216,11 +245,11 @@ void CloudsVisualSystemSavant::selfMouseMoved(ofMouseEventArgs& data){
 }
 
 void CloudsVisualSystemSavant::selfMousePressed(ofMouseEventArgs& data){
-	startSpeechListener();
+	//startSpeechListener();
 }
 
 void CloudsVisualSystemSavant::selfMouseReleased(ofMouseEventArgs& data){
-	stopSpeechListener();
+	//stopSpeechListener();
 }
 
 
@@ -247,6 +276,7 @@ void CloudsVisualSystemSavant::startSpeechListener() {
     speechLastUpdateIndex = speechStartedListeningIndex = getSoundBufferIndexAtVideoPosition(getRGBDVideoPlayer().getPlayer().getPosition());
     speechListenerListening = true;
     gstt.startListening();
+    addRandomWordBox(); // add box to represent this
 }
 
 void CloudsVisualSystemSavant::updateSpeechListener() {
@@ -257,14 +287,19 @@ void CloudsVisualSystemSavant::updateSpeechListener() {
     int startSoundIndex = speechLastUpdateIndex;
     int endSoundIndex = speechCurrentUpdateIndex; // TODO round down to buffer size...
     int currentChunkBufferSize = endSoundIndex - startSoundIndex;
-
+    
     // Get chunk of audio from video (and normalize)
     short* allAmplitudes = avfVideoPlayer.getAllAmplitudes();
     float* currentChunkBuffer = new float[currentChunkBufferSize];
     
     for (int i = 0; i < currentChunkBufferSize; i++) {
         currentChunkBuffer[i] = allAmplitudes[startSoundIndex + i] / 32760.f;
+        
+        
+        getLatestBox().addSample(currentChunkBuffer[i]);
     }
+    
+
     
     gstt.addAudio(currentChunkBuffer, currentChunkBufferSize, 2, 44100);
     speechLastUpdateIndex = speechCurrentUpdateIndex;
@@ -296,19 +331,28 @@ void CloudsVisualSystemSavant::addRandomWordBox() {
     WordBox wordBox;
     wordBox.x = ofRandom(0, ofGetWidth());
     wordBox.y = ofRandom(0, ofGetHeight());
+    wordBox.width = ofRandom(50, 600);
+    wordBox.height = ofRandom(50, 300);
     wordBox.setText(string("Bla bla bla"));
     
     words.push_back(wordBox);
 }
 
 void CloudsVisualSystemSavant::updateWords() {
-    for (std::vector<WordBox>::size_type i = 0; i != words.size(); i++) {
+    for (std::vector<WordBox>::size_type i = 0; i < words.size(); i++) {
         words[i].update();
     }
 }
 
 void CloudsVisualSystemSavant::drawWords() {
-    for (std::vector<WordBox>::size_type i = 0; i != words.size(); i++) {
+    for (std::vector<WordBox>::size_type i = 0; i < words.size(); i++) {
         words[i].draw();
     }
 }
+
+WordBox& CloudsVisualSystemSavant::getLatestBox() {
+    if (words.size() > 0) {
+        return words[words.size() - 1];
+    }
+}
+
