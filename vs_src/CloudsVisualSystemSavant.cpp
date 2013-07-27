@@ -292,7 +292,6 @@ void CloudsVisualSystemSavant::startSpeechListener() {
 }
 
 
-// float* currentChunkBuffer = new float[2338678];
 void CloudsVisualSystemSavant::updateSpeechListener() {
     // Get listening position, find range since last update....
     CloudsRGBDVideoPlayer &rgbdVideoPlayer = getRGBDVideoPlayer();
@@ -302,7 +301,6 @@ void CloudsVisualSystemSavant::updateSpeechListener() {
     int startSoundIndex = speechLastUpdateIndex;
     int endSoundIndex = speechCurrentUpdateIndex; // TODO round down to buffer size...
     int currentChunkBufferSize = endSoundIndex - startSoundIndex;
-    
 
     // Get chunk of audio from video (and normalize)
     short* allAmplitudes = avfVideoPlayer.getAllAmplitudes();
@@ -316,112 +314,14 @@ void CloudsVisualSystemSavant::updateSpeechListener() {
     int currentChunkResampleBufferSize = currentChunkBufferSize * resampleFactor;
     float* currentChunkResampleBuffer = new float[currentChunkResampleBufferSize];
     
-    
-    // Resample
     int srcUsed; // What ees this? Bytes actually used?
     resample_process(resampleHandle, resampleFactor, currentChunkBuffer, currentChunkBufferSize, 1, &srcUsed, currentChunkResampleBuffer, currentChunkResampleBufferSize);
-    
-        cout << "srcUsed:" << srcUsed << endl;
+    //cout << "srcUsed:" << srcUsed << endl;
     
     // Write to wav
     wav.write(currentChunkResampleBuffer, currentChunkResampleBufferSize);
     
-    
-//    short* allAmplitudes = avfVideoPlayer.getAllAmplitudes();
-//    float* normalAmplitudes = new float[avfVideoPlayer.getNumAmplitudes()];
-//    
-//    for (int i = 0; i < avfVideoPlayer.getNumAmplitudes(); i++) {
-//        normalAmplitudes[i] = allAmplitudes[i] / 32760.f;
-//    }
-//    
-//    wav.setFormat(2, 44100, 16);
-//    wav.open(ofToDataPath(wavInput), WAVFILE_WRITE);
-//    wav.write(normalAmplitudes, avfVideoPlayer.getNumAmplitudes());
-//    wav.close();
-    
-    
-    
-    
-    
-    //        wav.open(ofToDataPath(wavInput), WAVFILE_WRITE);
-    //        wav.write(normalAmplitudes, avfVideoPlayer.getNumAmplitudes());
-    
-
-    
-    //    int currentChunkResampleBufferSize = currentChunkBufferSize * resampleFactor * 2;
-    //    float* currentChunkResampleBuffer = new float[currentChunkResampleBufferSize];
-    
-    
-
-    
-    
-//    
-//    
-//    currentChunkBuffer[i] = ofMap(videoSoundBuffer[startSoundIndex + (i * 2)], -maxAmplitude, maxAmplitude, -1, 1);
-//    
-//    
-//    
-//    short* allAmplitudes = avfVideoPlayer.getAllAmplitudes();
-//    float* normalAmplitudes = new float[avfVideoPlayer.getNumAmplitudes()];
-//    
-//    for (int i = 0; i < avfVideoPlayer.getNumAmplitudes(); i++) {
-//        normalAmplitudes[i] = allAmplitudes[i] / 32760.f;
-//    }
-    
-    // Try to sort this out...
-    // Test exporting video audio to wave.
-    //        wav.setFormat(2, 44100, 16);
-    //        wav.open(ofToDataPath(wavInput), WAVFILE_WRITE);
-    //        wav.write(normalAmplitudes, avfVideoPlayer.getNumAmplitudes());
-    //        wav.close();
-    
-    
-    
-    
-    
-    
-    
-    /*
-    
-    float* normalAmplitudes = new float[avfVideoPlayer.getNumAmplitudes()];
-    for (int i = 0; i < avfVideoPlayer.getNumAmplitudes(); i++) {
-        normalAmplitudes[i] = allAmplitudes[i] / 32760.f;
-    }
-    
-    // Try to sort this out...
-    // Test exporting video audio to wave.
-    //        wav.setFormat(2, 44100, 16);
-    //        wav.open(ofToDataPath(wavInput), WAVFILE_WRITE);
-    //        wav.write(normalAmplitudes, avfVideoPlayer.getNumAmplitudes());
-    //        wav.close();
-    
-    
-    cout << "Start: " << startSoundIndex << " End: " << endSoundIndex << endl;
-    
-    // Pull in the correct chunk of buffer from the video
-    float *speechAudioBuffer = new float[speechAudioBufferSize];
-    
-    for (int i = 0; i < speechAudioBufferSize; i++) {
-        speechAudioBuffer[i] = ofMap(videoSoundBuffer[startSoundIndex + (i * 2)], -maxAmplitude, maxAmplitude, -1, 1);
-        cout << speechAudioBuffer[i] << endl;
-    }
-    
-    
-    */
-    
-//    
-//    //  Downsample from 44.1 to 16 khz.
-//    int srcUsed; // What ees this? Bytes actually used?
-//    resample_process(resampleHandle, resampleFactor, speechAudioBuffer, speechAudioBufferSize, 1, &srcUsed, resampleBuffer, expectedResampledBufferSize);
-//
-//    cout << "srcUsed: " << srcUsed << endl;
-//    
-//    wav.write(resampleBuffer, expectedResampledBufferSize);
-//    
-//    
-//    // Update last index... // TODO correct for frame misalignment
     speechLastUpdateIndex = speechCurrentUpdateIndex;
-    
 }
 
 
@@ -432,8 +332,8 @@ void CloudsVisualSystemSavant::stopSpeechListener() {
     
     resample_close(resampleHandle);
     wav.close();
-    //flacEncoder.encode(wavInput, flacOutput);
-    //google.sendFlac(flacOutput);
+    flacEncoder.encode(wavInput, flacOutput);
+    google.sendFlac(flacOutput);
 }
 
 
