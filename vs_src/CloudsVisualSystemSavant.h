@@ -1,14 +1,7 @@
-//
-// CLOUDS Interactive Documentary
-//
-// VISUAL SYSTEMS
-//
-// Welcome to the EMPTY CloudsVisualSystem
-//
-//
-//
-
 #pragma once
+
+// Optionally draw the cloud from the test video...
+// #define DRAW_CLOUD
 
 #include "CloudsVisualSystem.h"
 #include "ofxASR.h"
@@ -97,17 +90,24 @@ public:
 	}
 	
 protected:
-    
+
+    #ifdef DRAW_CLOUD
 	ofShader pointcloudShader;
 	ofVboMesh simplePointcloud;
-
+    #endif
     
     // GUI Placeholder
 	ofxUISuperCanvas* customGui;
 	bool customToggle;
 	float customFloat1;
 	float customFloat2;
-	
+
+	// Some additions to the empty viz system framework...
+//    void videoStartedPlaying();
+//    void videoStoppedPlaying();
+    
+    //bool isVideoPlaying;
+    
     // Speech Recognition
     ofxASR *speechEngine;
     ofAsrEngineArgs *speechEngineArgs;
@@ -121,5 +121,16 @@ protected:
     void updateSpeechListener();
     void stopSpeechListener();
     int getSoundBufferIndexAtVideoPosition(float videoPosition);
+
+    bool bAudioReady;
+    void prepareAudioBuffer();
+    
+    int lastRawAudioBufferLength; // It takes some time to read...
+    
+    int downsampledAudioBufferLength;
+    short *downsampledAudioBuffer;
+    
+    
+    
     
 };

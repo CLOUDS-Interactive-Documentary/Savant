@@ -1,9 +1,4 @@
-//
-//  CloudsVisualSystemSavant.cpp
-//
-
 #include "CloudsVisualSystemSavant.h"
-
 
 #include "CloudsRGBDVideoPlayer.h"
 #ifdef AVF_PLAYER
@@ -58,12 +53,15 @@ void CloudsVisualSystemSavant::guiRenderEvent(ofxUIEventArgs &e){
 void CloudsVisualSystemSavant::selfSetup() {
     ofSetLogLevel(OF_LOG_VERBOSE);
     
+    
+    
     if(ofFile::doesFileExist(getVisualSystemDataPath() + "TestVideo/Jer_TestVideo.mov")){
 		getRGBDVideoPlayer().setup(getVisualSystemDataPath() + "TestVideo/Jer_TestVideo.mov",
 								   getVisualSystemDataPath() + "TestVideo/Jer_TestVideo.xml" );
 		
 		getRGBDVideoPlayer().swapAndPlay();
-		
+        
+#ifdef DRAW_CLOUD
 		for(int i = 0; i < 640; i += 2){
 			for(int j = 0; j < 480; j+=2){
 				simplePointcloud.addVertex(ofVec3f(i,j,0));
@@ -71,9 +69,10 @@ void CloudsVisualSystemSavant::selfSetup() {
 		}
 		
 		pointcloudShader.load(getVisualSystemDataPath() + "shaders/rgbdcombined");
+#endif
 		
 	}
-
+    
     // Create speech engine
     setupSpeechEngine();
 }
@@ -89,7 +88,9 @@ void CloudsVisualSystemSavant::selfPresetLoaded(string presetPath){
 // this is a good time to prepare for transitions
 // but try to keep it light weight as to not cause stuttering
 void CloudsVisualSystemSavant::selfBegin(){
-	
+    // Reset this
+    ofLogVerbose("Self Begin");
+    bAudioReady = false;
 }
 
 //do things like ofRotate/ofTranslate here
@@ -100,20 +101,39 @@ void CloudsVisualSystemSavant::selfSceneTransformation(){
 
 //normal update call
 void CloudsVisualSystemSavant::selfUpdate(){
+    
+    // Watch for audio ready
+    CloudsRGBDVideoPlayer &rgbdVideoPlayer = getRGBDVideoPlayer();
+    ofxAVFVideoPlayer &avfVideoPlayer = rgbdVideoPlayer.getPlayer();
+
+    if (!bAudioReady && (lastRawAudioBufferLength > 0) && (lastRawAudioBufferLength == avfVideoPlayer.getNumAmplitudes())) {
+        // Done, buffer length is greater than zero and stable
+        cout << "Audio ready" << endl;
+        bAudioReady = true;
+        prepareAudioBuffer();
+    }
+    else if (!bAudioReady) {
+        lastRawAudioBufferLength = avfVideoPlayer.getNumAmplitudes();
+        cout << "Unstable buffer length: " << lastRawAudioBufferLength << endl;
+    }
+
     if (speechListenerListening) updateSpeechListener();
 }
+
+
 // selfDraw draws in 3D using the default ofEasyCamera
 // you can change the camera by returning getCameraRef()
 void CloudsVisualSystemSavant::selfDraw(){
-
-	
+    
+    #ifdef DRAW_CLOUD
     ofPushMatrix();
 	setupRGBDTransforms();
 	pointcloudShader.begin();
 	getRGBDVideoPlayer().setupProjectionUniforms(pointcloudShader);
 	simplePointcloud.drawVertices();
 	pointcloudShader.end();
-	ofPopMatrix();
+    ofPopMatrix();
+    #endif
     
 }
 
@@ -121,11 +141,14 @@ void CloudsVisualSystemSavant::selfDraw(){
 void CloudsVisualSystemSavant::selfDrawDebug(){
 	
 }
+
 // or you can use selfDrawBackground to do 2D drawings that don't use the 3D camera
 void CloudsVisualSystemSavant::selfDrawBackground(){
     
 	//turn the background refresh off
 	bClearBackground = true;
+    
+
     
     CloudsRGBDVideoPlayer &rgbdVideoPlayer = getRGBDVideoPlayer();
 	ofxAVFVideoPlayer &avfVideoPlayer = rgbdVideoPlayer.getPlayer();
@@ -136,7 +159,7 @@ void CloudsVisualSystemSavant::selfDrawBackground(){
     ofFill();
     //    avfVideoPlayer.play();
     //    avfVideoPlayer.update();
-    //avfVideoPlayer.draw(300, 0);
+    avfVideoPlayer.draw(300, 0);
     
     // Update from sound buffer
     //avfVideoPlayer
@@ -159,8 +182,14 @@ void CloudsVisualSystemSavant::selfDrawBackground(){
 // this is called when your system is no longer drawing.
 // Right after this selfUpdate() and selfDraw() won't be called any more
 void CloudsVisualSystemSavant::selfEnd(){
+    #ifdef DRAW_CLOUD
 	simplePointcloud.clear();
+    #endif
+    
+    // Reset this, get fresh event if we start back
+    bAudioReady = false;
 }
+
 // this is called when you should clear all the memory and delet anything you made in setup
 void CloudsVisualSystemSavant::selfExit(){
     destroySpeechEngine();
@@ -238,8 +267,8 @@ void CloudsVisualSystemSavant::setupSpeechEngine() {
     
     // Initialize resampler
     int resampleQuality = 1; // 1 is "high"
-    double minResampleFactor = 0.5; // What's good here? TODO
-    double maxResampleFactor = 0.5; // What's good here? TODO
+    double minResampleFactor = 0.2; // conversion factor... e.g. 44 / 16
+    double maxResampleFactor = 0.7; // conversion factor...
     resampleHandle = resample_open(resampleQuality, minResampleFactor, maxResampleFactor);
 }
 
@@ -284,52 +313,29 @@ void CloudsVisualSystemSavant::updateSpeechListener() {
 	ofxAVFVideoPlayer &avfVideoPlayer = rgbdVideoPlayer.getPlayer();
     int speechCurrentUpdateIndex = getSoundBufferIndexAtVideoPosition(avfVideoPlayer.getPosition());
     
+
+
+    
     int startSoundIndex = speechLastUpdateIndex;
     int endSoundIndex = speechCurrentUpdateIndex; // TODO round down to buffer size...
+    int speechAudioBufferSize = endSoundIndex - startSoundIndex;
+
+    cout << "Start: " << startSoundIndex << " End: " << endSoundIndex << endl;
     
-    // Should do this when loaded...
+    // Pull in the correct chunk of buffer from the video
+    short *speechAudioBuffer = new short[speechAudioBufferSize];
     
-    int sourceSampleRate = 44100; // TODO calculate this
-    int speechSampleRate = 16000; // todo make class const
-    double resampleFactor = (double)sourceSampleRate / (double)speechSampleRate; // Todo cache this
-    int incomingBufferSize = endSoundIndex - startSoundIndex;
-    int expectedResultBufferSize = ceil((double)incomingBufferSize * resampleFactor);
-    
-    int minBufferSize = 16; // TODO what's a reasonable number here?
-    
-    if (expectedResultBufferSize < minBufferSize) {
-        ofLogError("Not enough samples to send to speech engine, expecting " + ofToString(expectedResultBufferSize));
+    for (int i = 0; i < speechAudioBufferSize; i++) {
+        speechAudioBuffer[i] = downsampledAudioBuffer[startSoundIndex + i];
+        cout << speechAudioBuffer[i] << endl;
     }
-    else {
-        // Pull in the correct chunk of buffer from the video
-        float *inputBuffer = new float[incomingBufferSize];
-        
-        for (int i = 0; i < incomingBufferSize; i++) {
-            inputBuffer[i] = avfVideoPlayer.getAllAmplitudes()[startSoundIndex + i];
-        }
-        
-        // Downsample from 44.1 to 16 khz.
-        float *downSampleBuffer = new float[expectedResultBufferSize];
-        
-        ofLogVerbose("expectedResultBufferSize: " + ofToString(expectedResultBufferSize));
-        
-        int srcUsed; // What ees this? Frames actually used?
-        resample_process(resampleHandle, resampleFactor, inputBuffer, incomingBufferSize, 1, &srcUsed, downSampleBuffer, expectedResultBufferSize);
-        
-        ofLogVerbose("srcUsed: " + ofToString(srcUsed));
-        
-        // Convert from float to short for the sound engine (16 bit PCM) // TODO correct for frame misalignment
-        short *downSampleBuffer16BitPCM = new short[expectedResultBufferSize];
-        for (int i = 0; i < expectedResultBufferSize; i++) {
-            downSampleBuffer16BitPCM[i] = short(downSampleBuffer[i] * 32767.5 - 0.5);
-        }
-        
-        // Send it to the engine // TODO correct for frame misalignment
-        speechEngine->engineSentAudio(downSampleBuffer16BitPCM, expectedResultBufferSize);
-        
-        // Update last index... // TODO correct for frame misalignment
-        speechLastUpdateIndex = speechCurrentUpdateIndex;
-    }
+    
+    // Send it to the engine // TODO correct for frame misalignment
+    speechEngine->engineSentAudio(speechAudioBuffer, speechAudioBufferSize);
+    
+    // Update last index... // TODO correct for frame misalignment
+    speechLastUpdateIndex = speechCurrentUpdateIndex;
+    
 }
 
 
@@ -358,13 +364,62 @@ void CloudsVisualSystemSavant::stopSpeechListener() {
 }
 
 int CloudsVisualSystemSavant::getSoundBufferIndexAtVideoPosition(float videoPosition) {
-    CloudsRGBDVideoPlayer &rgbdVideoPlayer = getRGBDVideoPlayer();
-	ofxAVFVideoPlayer &avfVideoPlayer = rgbdVideoPlayer.getPlayer();
-    return MIN(floor(videoPosition * avfVideoPlayer.getNumAmplitudes()), avfVideoPlayer.getNumAmplitudes() - 1);
+    return MIN(floor(videoPosition * downsampledAudioBufferLength), downsampledAudioBufferLength - 1);
 }
 
+void CloudsVisualSystemSavant::prepareAudioBuffer() {
+    // Do the sound conversion!
+    CloudsRGBDVideoPlayer &rgbdVideoPlayer = getRGBDVideoPlayer();
+	ofxAVFVideoPlayer &avfVideoPlayer = rgbdVideoPlayer.getPlayer();
+    
+    // Get the raw audio buffer from the video player (Always 44.1 khz?)
+    int rawAudioBufferSize = avfVideoPlayer.getNumAmplitudes();
+    float *rawAudioBuffer = avfVideoPlayer.getAllAmplitudes();
+    
+    
+    
+    int sourceSampleRate = 44100; // TODO calculate this
+    int speechSampleRate = 16000; // todo make class const
+    double resampleFactor = (double)speechSampleRate / (double)sourceSampleRate; // Todo cache this
+    
+    // Prep the intermediate buffer (correct length, but floats instead of shorts)
+    int expectedResultBufferSize = ceil((double)rawAudioBufferSize * resampleFactor);
+    float *tempDownsampleBuffer = new float[expectedResultBufferSize];
 
+    ofLogVerbose("resample factor: " + ofToString(resampleFactor));
+    ofLogVerbose("starting audio buffer size: " + ofToString(rawAudioBufferSize));
+    ofLogVerbose("expectedResultBufferSize: " + ofToString(expectedResultBufferSize));
+    
+    // Downsample from 44.1 to 16 khz.
+    int srcUsed; // What ees this? Bytes actually used?
+    resample_process(resampleHandle, resampleFactor, rawAudioBuffer, rawAudioBufferSize, 1, &srcUsed, tempDownsampleBuffer, expectedResultBufferSize);
+    ofLogVerbose("srcUsed: " + ofToString(srcUsed));
+    
+    // Clear the old
+    downsampledAudioBuffer = NULL; // todo clean this?
+    downsampledAudioBuffer = new short[expectedResultBufferSize];
 
+    // Convert from float to signed short for the sound engine (16 bit PCM) // TODO correct for frame misalignment?
+    for (int i = 0; i < expectedResultBufferSize; i++) {
+        downsampledAudioBuffer[i] = short(tempDownsampleBuffer[i] * 0.5);
+        //downsampledAudioBuffer[i] = short(tempDownsampleBuffer[i] * 32767.5 - 0.5);
+        // -32768 to 32767
+        if ((i % 100) == 0) cout << "Buffer: " << tempDownsampleBuffer[i] << "    " << downsampledAudioBuffer[i] << endl;
+    }
+    downsampledAudioBufferLength = expectedResultBufferSize;
+}
+
+/*
+void CloudsVisualSystemSavant::videoStartedPlaying() {
+    ofLogVerbose("Video Started Playing");
+    
+
+}
+
+void CloudsVisualSystemSavant::videoStoppedPlaying() {
+    ofLogVerbose("Video Stopped Playing");
+}
+*/
 
 
 

@@ -14,6 +14,8 @@
 
 **********************************************************************/
 
+#define DEBUG TRUE
+
 /* External interface */
 #include "libresample.h"
 
