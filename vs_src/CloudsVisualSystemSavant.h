@@ -1,7 +1,7 @@
 #pragma once
 
 // Optionally draw the cloud from the test video...
-#define DRAW_CLOUD
+// #define DRAW_CLOUD
 
 #include "CloudsVisualSystem.h"
 #include "ofxGSTT.h"
@@ -117,8 +117,6 @@ protected:
     float maxAmplitude;
     float timeOffsetSeconds;
     
-    
-
     ofxGSTT gstt;
     void gsttResponse(ofxGSTTResponseArgs & response);
 
@@ -132,7 +130,6 @@ protected:
     void updateWords();
     void drawWords();
     WordBox &getLatestBox();
-    
     
     void selfKeyDown(ofKeyEventArgs & args);
 };

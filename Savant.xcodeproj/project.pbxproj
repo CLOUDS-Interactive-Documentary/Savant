@@ -17,6 +17,7 @@
 		2571E77217A440CE00F68508 /* ofxTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2571E77017A440CE00F68508 /* ofxTimer.cpp */; };
 		2571E77517A45C2400F68508 /* WordBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2571E77317A45C2400F68508 /* WordBox.cpp */; };
 		2571E77D17A47F1900F68508 /* JitterFont.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2571E77B17A47F1900F68508 /* JitterFont.cpp */; };
+		2571E78217A4913200F68508 /* ofCyclinderPrimitive.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2571E78017A4913200F68508 /* ofCyclinderPrimitive.cpp */; };
 		257E673C17A30B1000BFE17E /* CloudsVisualSystemSavant.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 257E673A17A30B1000BFE17E /* CloudsVisualSystemSavant.cpp */; };
 		25B399E317A3ACA100B593BD /* ofxFlacEncoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 25B399DE17A3ACA000B593BD /* ofxFlacEncoder.cpp */; };
 		25B39AA317A3ACF100B593BD /* json_reader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 25B39A6217A3ACF000B593BD /* json_reader.cpp */; };
@@ -202,6 +203,8 @@
 		2571E77417A45C2400F68508 /* WordBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WordBox.h; sourceTree = "<group>"; };
 		2571E77B17A47F1900F68508 /* JitterFont.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JitterFont.cpp; sourceTree = "<group>"; };
 		2571E77C17A47F1900F68508 /* JitterFont.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JitterFont.h; sourceTree = "<group>"; };
+		2571E78017A4913200F68508 /* ofCyclinderPrimitive.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofCyclinderPrimitive.cpp; sourceTree = "<group>"; };
+		2571E78117A4913200F68508 /* ofCyclinderPrimitive.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofCyclinderPrimitive.h; sourceTree = "<group>"; };
 		257E673A17A30B1000BFE17E /* CloudsVisualSystemSavant.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CloudsVisualSystemSavant.cpp; sourceTree = "<group>"; };
 		257E673B17A30B1000BFE17E /* CloudsVisualSystemSavant.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CloudsVisualSystemSavant.h; sourceTree = "<group>"; };
 		25B399DE17A3ACA000B593BD /* ofxFlacEncoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxFlacEncoder.cpp; sourceTree = "<group>"; };
@@ -1286,6 +1289,8 @@
 				2571E77317A45C2400F68508 /* WordBox.cpp */,
 				2571E77C17A47F1900F68508 /* JitterFont.h */,
 				2571E77B17A47F1900F68508 /* JitterFont.cpp */,
+				2571E78017A4913200F68508 /* ofCyclinderPrimitive.cpp */,
+				2571E78117A4913200F68508 /* ofCyclinderPrimitive.h */,
 			);
 			path = vs_src;
 			sourceTree = SOURCE_ROOT;
@@ -1785,6 +1790,7 @@
 				2571E77217A440CE00F68508 /* ofxTimer.cpp in Sources */,
 				2571E77517A45C2400F68508 /* WordBox.cpp in Sources */,
 				2571E77D17A47F1900F68508 /* JitterFont.cpp in Sources */,
+				2571E78217A4913200F68508 /* ofCyclinderPrimitive.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

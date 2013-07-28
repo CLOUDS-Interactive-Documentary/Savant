@@ -41,6 +41,8 @@ void CloudsVisualSystemSavant::selfGuiEvent(ofxUIEventArgs &e) {
             stopSpeechListener();
         }
 	}
+    
+
 }
 
 //Use system gui for global or logical settings, for exmpl
@@ -180,11 +182,16 @@ void CloudsVisualSystemSavant::selfDrawBackground(){
 	ofxAVFVideoPlayer &avfVideoPlayer = rgbdVideoPlayer.getPlayer();
     
     // Draw video
-    //    ofPushStyle();
-    //    ofSetColor(ofColor::white);
-    //    ofFill();
-    //    avfVideoPlayer.draw(300, 0);
-    //    ofPopStyle();
+    ofPushStyle();
+    ofSetColor(ofColor::white);
+    ofFill();
+    ofPushMatrix();
+    ofScale(3, 3);
+    avfVideoPlayer.draw(0, 0);
+    
+    ofPopMatrix();
+    
+    ofPopStyle();
     
     drawWords();
 }
@@ -247,6 +254,11 @@ void CloudsVisualSystemSavant::selfMouseMoved(ofMouseEventArgs& data){
 
 void CloudsVisualSystemSavant::selfMousePressed(ofMouseEventArgs& data){
 	//startSpeechListener();
+    
+    for (std::vector<WordBox>::size_type i = 0; i < words.size(); i++) {
+        words[i].tweenTo(ofGetMouseX(), ofGetMouseY(), ofRandom(1, 5) * 1000);
+    }
+    
 }
 
 void CloudsVisualSystemSavant::selfMouseReleased(ofMouseEventArgs& data){
@@ -351,12 +363,10 @@ void CloudsVisualSystemSavant::addRandomWordBox() {
     // Build a fake word box for testing
     
     WordBox wordBox;
-    wordBox.x = ofRandom(0, ofGetWidth());
-    wordBox.y = ofRandom(0, ofGetHeight());
-    wordBox.width = ofRandom(50, 600);
-    wordBox.height = ofRandom(50, 300);
-    wordBox.setText(string("Bla bla bla"));
-    
+    wordBox.setPosition(50, 20);
+    wordBox.width = ofGetWidth() - 100;
+    wordBox.height = 180;
+    //wordBox.setText(string("Bla bla bla"));
     words.push_back(wordBox);
 }
 
@@ -367,6 +377,13 @@ void CloudsVisualSystemSavant::updateWords() {
 }
 
 void CloudsVisualSystemSavant::drawWords() {
+    // Lay the out, newest at top
+    float yOffset = 20;
+    for (int i = (words.size() - 1); i >= 0; i--) {
+        words[i].setPosition(50, yOffset);
+        yOffset += 200;
+    }
+    
     for (std::vector<WordBox>::size_type i = 0; i < words.size(); i++) {
         words[i].draw();
     }
