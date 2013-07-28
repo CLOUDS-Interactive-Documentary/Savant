@@ -7,21 +7,20 @@
 
 //These methods let us add custom GUI parameters and respond to their events
 void CloudsVisualSystemSavant::selfSetupGui() {
-	customGui = new ofxUISuperCanvas("Speech Recognition", gui);
+	customGui = new ofxUISuperCanvas("SPEECH RECOGNITION", gui);
 	customGui->copyCanvasStyle(gui);
 	customGui->copyCanvasProperties(gui);
-	customGui->setName("Custom");
+	//customGui->setName("Custom");
 	customGui->setWidgetFontSize(OFX_UI_FONT_SMALL);
-	
-	customGui->addSlider("Custom Float 1", 1, 1000, &customFloat1);
-	customGui->addSlider("Custom Float 2", 1, 1000, &customFloat2);
 	customGui->addButton("Add Test Word", false);
 	customGui->addButton("Sample Speech", false);
+	customGui->addButton("Clear Speech Boxes",false);
 	customGui->addToggle("Map Mouse Y To Damage", &bMouseYIsdamage);
-	customGui->addSlider("Sample Ahead (Seconds)", 0, 5000, &timeOffsetSeconds);
+	customGui->addSlider("Sample Ahead (Seconds)", 0, 5, &timeOffsetSeconds);
 	customGui->addSlider("Damage Factor", 0, 1, &damageFactor);
 	customGui->addSlider("Damage Viz Factor", 0, 1, &damageVizualizationFactor);
-	customGui->addSlider("Damage Back Scale Factor", 0, 1, &damageBackroundVizScaleFactor);    
+	customGui->addSlider("Damage Back Scale Factor", 0, 1, &damageBackroundVizScaleFactor);
+	customGui->addSlider("Damage Back Rotate Amount", 0, 360, &randomRotateAmount);
 	customGui->addSlider("Confidence Viz Factor", 0, 20, &confidenceVizualizationFactor);
     
 	
@@ -46,6 +45,18 @@ void CloudsVisualSystemSavant::selfGuiEvent(ofxUIEventArgs &e) {
             stopSpeechListener();
         }
 	}
+
+    else if(e.widget->getName() == "Clear Speech Boxes"){
+                if (e.getButton()->getValue()) {
+                    cout << "clearing speech bubbles" << endl;
+
+                    for (std::vector<WordBox>::size_type i = 0; i < words.size(); i++) {
+                        words[i].setPosition(0, -2000); // Off screeners get hidden
+                    }
+                    
+                }
+    }
+    
 }
 
 //Use system gui for global or logical settings, for exmpl
@@ -72,7 +83,7 @@ void CloudsVisualSystemSavant::guiRenderEvent(ofxUIEventArgs &e){
 // geometry should be loaded here
 void CloudsVisualSystemSavant::selfSetup() {
     ofSetLogLevel(OF_LOG_VERBOSE);
-    
+    ofSetFrameRate(45);
 
     
 	if(ofFile::doesFileExist(getVisualSystemDataPath() + "TestVideo/" + testFile + ".mov")) {
@@ -202,7 +213,8 @@ void CloudsVisualSystemSavant::selfUpdate(){
     
     
 #ifdef LOOP_VIDEO
-    if (getRGBDVideoPlayer().getPlayer().getPosition() >= 0.999) {
+    //cout << getRGBDVideoPlayer().getPlayer().getPosition() << endl;
+    if (getRGBDVideoPlayer().getPlayer().getPosition() >= 0.995) {
         cout << "LOOPING" << endl;
         getRGBDVideoPlayer().getPlayer().setPosition(0);
         getRGBDVideoPlayer().getPlayer().play();
@@ -232,7 +244,7 @@ void CloudsVisualSystemSavant::selfDraw(){
     
 
     ofVec3f headPosition = getRGBDVideoPlayer().headPosition;
-    ofVec3f offsetFromHeadPosition = ofVec3f((ofGetWidth() / -2) - 100, (-ofGetHeight() / 2) + 300, 0);
+    ofVec3f offsetFromHeadPosition = ofVec3f((ofGetWidth() / -2) - 0, (-ofGetHeight() / 2) + 300, 0);
     
     ofPushStyle();
     ofPushMatrix();
@@ -285,7 +297,7 @@ void CloudsVisualSystemSavant::selfDrawBackground(){
             ofTranslate(x + (ofGetFrameNum() % 40), y + (ofGetFrameNum() % 20));
             
             ofTranslate(-boxSize/2, -boxSize/2);
-            ofRotate(ofRandom(360));
+            ofRotate(ofRandom(randomRotateAmount));
             //ofScale(1 + ofRandom(damageFactor), 1 + ofRandom(damageFactor));
             ofTranslate(boxSize, boxSize);
             
@@ -402,7 +414,7 @@ void CloudsVisualSystemSavant::startSpeechListener() {
     getLatestBox().setDamageFactor(damageFactor);
 }
 
-float* currentChunkBuffer = new float[20000];
+float* currentChunkBuffer = new float[40000];
 
 void CloudsVisualSystemSavant::updateSpeechListener() {
     int speechCurrentUpdateIndex;
@@ -454,7 +466,7 @@ void CloudsVisualSystemSavant::updateSpeechListener() {
     for (int i = 0; i < currentChunkBufferSize; i++) {
         
         if (damageFactor > 0) {
-        currentChunkBuffer[i] = ((allAmplitudes[startSoundIndex + i]) / 32760.f) * (1 + (ofRandom(-damageFactor, damageFactor)));
+        currentChunkBuffer[i] = ((allAmplitudes[startSoundIndex + i]) / 32760.f) * (1 + (2 * ofRandom(-damageFactor, damageFactor)));
         }
         else {
         currentChunkBuffer[i] = ((allAmplitudes[startSoundIndex + i]) / 32760.f);
@@ -506,7 +518,7 @@ void CloudsVisualSystemSavant::addRandomWordBox() {
     
     WordBox wordBox;
     wordBox.setPosition(50, 20);
-    wordBox.width = ofGetWidth() - 100;
+    wordBox.width = 1280 - 100;
     wordBox.height = 180;
     //wordBox.setText(string("Bla bla bla"));
     words.push_back(wordBox);
@@ -534,9 +546,6 @@ void CloudsVisualSystemSavant::drawWords() {
 }
 
 WordBox& CloudsVisualSystemSavant::getLatestBox() {
-    
-    
-    
     if (words.size() > 0) {
         return words[words.size() - 1];
     }

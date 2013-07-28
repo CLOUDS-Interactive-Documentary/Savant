@@ -24,13 +24,8 @@ void WordBox::draw() {
         position.y -= 1;
     }
     
-
-    
-    
     //cout << position.y << endl;
-    
 
-    
     ofPushMatrix();
     ofTranslate(position.x, position.y);
     ofPushStyle();
@@ -56,9 +51,7 @@ void WordBox::draw() {
         
         // Let the wave flow
         indexOffset += 10;
-        
-        
-        
+
         // Find max
         float maxAmplitude = 0;
         for (int i = 0; i < width; i += 10) {

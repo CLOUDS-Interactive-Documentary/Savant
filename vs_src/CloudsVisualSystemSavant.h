@@ -142,7 +142,7 @@ protected:
     float damageBackroundVizScaleFactor;
     float confidenceVizualizationFactor;
     bool bMouseYIsdamage;
-    
+    float randomRotateAmount;
     
     // renderer
     vector<WordBox> words;
@@ -161,9 +161,9 @@ protected:
     
     //string testFile = "Jer_TestVideo";
     //string testFile = "Lauren_sentiment_anaylsis";
-    //string testFile = "Fernanda_Sentiment_analysis";
+    string testFile = "Fernanda_Sentiment_analysis";
     //string testFile = "Jen_data_autobiography";
-    string testFile = "Martin_verbal_programming_debate";
+    //string testFile = "Martin_verbal_programming_debate";
     
     void selfKeyDown(ofKeyEventArgs & args);
 };
