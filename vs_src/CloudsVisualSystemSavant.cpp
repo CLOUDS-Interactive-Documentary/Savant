@@ -62,16 +62,68 @@ void CloudsVisualSystemSavant::guiRenderEvent(ofxUIEventArgs &e){
 	
 }
 
+
+
 // selfSetup is called when the visual system is first instantiated
 // This will be called during a "loading" screen, so any big images or
 // geometry should be loaded here
 void CloudsVisualSystemSavant::selfSetup() {
     ofSetLogLevel(OF_LOG_VERBOSE);
     
-    if(ofFile::doesFileExist(getVisualSystemDataPath() + "TestVideo/Jer_TestVideo.mov")){
-		getRGBDVideoPlayer().setup(getVisualSystemDataPath() + "TestVideo/Jer_TestVideo.mov",
-								   getVisualSystemDataPath() + "TestVideo/Jer_TestVideo.xml" );
-		
+    string testFile = "Jer_TestVideo";
+    
+	if(ofFile::doesFileExist(getVisualSystemDataPath() + "TestVideo/" + testFile + ".mov")) {
+		getRGBDVideoPlayer().setup(getVisualSystemDataPath() + "TestVideo/" + testFile + ".mov", getVisualSystemDataPath() + "TestVideo/" + testFile + ".xml" );
+        
+#ifdef AVF_PLAYER
+        
+#else
+        // Load sound manually
+        string soundFileNameString = getVisualSystemDataPath() + "TestVideo/" + testFile + ".wav";
+        char* soundFileName = (char *)soundFileNameString.c_str();
+        
+        pObjWavFile = new WavFileReader;
+        pObjWavFile->openWavFile(soundFileName);
+        if (EXIT_SUCCESS != pObjWavFile->openWavFile(soundFileName))   {
+            cout<<"Can't load wav file: " << soundFileName << endl;
+        }
+        pObjWavFile->displayInformation(soundFileName);
+        
+        videoSoundBufferSize = pObjWavFile->getNumSamples();
+        videoSoundBuffer = new short[videoSoundBufferSize];
+        
+        int index = 0;
+        while (pObjWavFile->ifMoreDataAvailable()) {
+            videoSoundBuffer[index] = pObjWavFile->readCurrentInput();
+            index++;
+        }
+        //closeWavFile(pObjWavFile); // ?
+        
+        // Test exporting video audio to wave.
+        /*
+         
+        float* normalAmplitudes = new float[videoSoundBufferSize];
+        for (int i = 0; i < videoSoundBufferSize; i++) {
+            normalAmplitudes[i] = (float)(videoSoundBuffer[i] / 32760.f);
+        }
+         
+        WavFile testWav;
+        testWav.setFormat(2, 44100, 16);
+        testWav.open(ofToDataPath("sometest.wav"), WAVFILE_WRITE);
+        testWav.write(normalAmplitudes, videoSoundBufferSize);
+        testWav.close();
+        */
+        
+        // SET video loaded
+        
+        
+        //videoSound.loadSound(getVisualSystemDataPath() + "TestVideo/" + testFile + ".wav");
+        
+        //videoSound.getPlayert();
+        
+#endif
+        
+
 		getRGBDVideoPlayer().swapAndPlay();
         
 #ifdef DRAW_CLOUD
@@ -114,6 +166,9 @@ void CloudsVisualSystemSavant::selfSceneTransformation(){
 
 //normal update call
 void CloudsVisualSystemSavant::selfUpdate(){
+    Tweener.update();
+    
+    #ifdef AVF_PLAYER
     
     // Watch for audio ready
     CloudsRGBDVideoPlayer &rgbdVideoPlayer = getRGBDVideoPlayer();
@@ -144,6 +199,12 @@ void CloudsVisualSystemSavant::selfUpdate(){
         cout << "Unstable buffer length: " << lastRawAudioBufferLength << endl;
     }
     
+    #else
+    
+    // Work around, data loads synchronously in setup
+    bAudioReady = true;
+    
+    #endif
     
     if (speechListenerListening) updateSpeechListener();
     
@@ -178,29 +239,15 @@ void CloudsVisualSystemSavant::selfDrawBackground(){
 	//turn the background refresh off
 	bClearBackground = true;
     
-    CloudsRGBDVideoPlayer &rgbdVideoPlayer = getRGBDVideoPlayer();
-	ofxAVFVideoPlayer &avfVideoPlayer = rgbdVideoPlayer.getPlayer();
-    
-    // Draw video
-    ofPushStyle();
-    ofSetColor(ofColor::white);
-    ofFill();
-    ofPushMatrix();
-    ofScale(3, 3);
-    avfVideoPlayer.draw(0, 0);
-    
-    ofPopMatrix();
-    
-    ofPopStyle();
-    
     drawWords();
 }
 // this is called when your system is no longer drawing.
 // Right after this selfUpdate() and selfDraw() won't be called any more
 void CloudsVisualSystemSavant::selfEnd(){
-#ifdef DRAW_CLOUD
+    
+    #ifdef DRAW_CLOUD
 	simplePointcloud.clear();
-#endif
+    #endif
     
     // Reset this, get fresh event if we start back
     
@@ -256,7 +303,7 @@ void CloudsVisualSystemSavant::selfMousePressed(ofMouseEventArgs& data){
 	//startSpeechListener();
     
     for (std::vector<WordBox>::size_type i = 0; i < words.size(); i++) {
-        words[i].tweenTo(ofGetMouseX(), ofGetMouseY(), ofRandom(1, 5) * 1000);
+        words[i].tweenTo(ofGetMouseX(), ofGetMouseY(), ofRandom(1, 5));
     }
     
 }
@@ -293,9 +340,30 @@ void CloudsVisualSystemSavant::startSpeechListener() {
 }
 
 void CloudsVisualSystemSavant::updateSpeechListener() {
+    
+    
+    int speechCurrentUpdateIndex;
+    short* allAmplitudes;
+    int allAmplitudesCount;
+    
+    #ifdef AVF_PLAYER
+    
     // Get listening position, find range since last update....
 	ofxAVFVideoPlayer &avfVideoPlayer = getRGBDVideoPlayer().getPlayer();
-    int speechCurrentUpdateIndex = getSoundBufferIndexAtVideoPosition(avfVideoPlayer.getPosition());
+    speechCurrentUpdateIndex = getSoundBufferIndexAtVideoPosition(avfVideoPlayer.getPosition());
+    allAmplitudesCount = avfVideoPlayer.getNumAmplitudes();
+    allAmplitudes = avfVideoPlayer.getAllAmplitudes();
+    
+    #else
+    
+    allAmplitudesCount = videoSoundBufferSize;
+    allAmplitudes = videoSoundBuffer;
+    
+    // Alt implementation
+	ofVideoPlayer &videoPlayer = getRGBDVideoPlayer().getPlayer();
+    speechCurrentUpdateIndex = getSoundBufferIndexAtVideoPosition(videoPlayer.getPosition());
+    
+    #endif
     
     int startSoundIndex = speechLastUpdateIndex;
     int endSoundIndex = speechCurrentUpdateIndex; // TODO round down to buffer size...
@@ -305,8 +373,8 @@ void CloudsVisualSystemSavant::updateSpeechListener() {
     
     // If index offset overshoots...
     
-    startSoundIndex = min(startSoundIndex + indexOffset, (2 * avfVideoPlayer.getNumAmplitudes() - 1));
-    endSoundIndex = min(endSoundIndex + indexOffset, (2 * avfVideoPlayer.getNumAmplitudes() - 1));
+    startSoundIndex = min(startSoundIndex + indexOffset, (2 * allAmplitudesCount - 1));
+    endSoundIndex = min(endSoundIndex + indexOffset, (2 * allAmplitudesCount - 1));
     
     // Todo, what's the minimum sample size? Need to break for that too.
     if (startSoundIndex == endSoundIndex) {
@@ -318,7 +386,6 @@ void CloudsVisualSystemSavant::updateSpeechListener() {
     int currentChunkBufferSize = endSoundIndex - startSoundIndex;
 
     // Get chunk of audio from video (and normalize)
-    short* allAmplitudes = avfVideoPlayer.getAllAmplitudes();
     float* currentChunkBuffer = new float[currentChunkBufferSize];
     
     for (int i = 0; i < currentChunkBufferSize; i++) {
@@ -327,7 +394,6 @@ void CloudsVisualSystemSavant::updateSpeechListener() {
         
         getLatestBox().addSample(currentChunkBuffer[i]);
     }
-    
 
     
     gstt.addAudio(currentChunkBuffer, currentChunkBufferSize, 2, 44100);
@@ -349,9 +415,20 @@ void CloudsVisualSystemSavant::gsttResponse(ofxGSTTResponseArgs & response){
 #pragma mark -- Helpers
 
 int CloudsVisualSystemSavant::getSoundBufferIndexAtVideoPosition(float videoPosition) {
+    
+    #ifdef AVF_PLAYER
+    
     CloudsRGBDVideoPlayer &rgbdVideoPlayer = getRGBDVideoPlayer();
 	ofxAVFVideoPlayer &avfVideoPlayer = rgbdVideoPlayer.getPlayer();
     return MIN(floor(videoPosition * avfVideoPlayer.getNumAmplitudes()) * 2, 2 * avfVideoPlayer.getNumAmplitudes() - 1);
+    
+    #else
+    
+    return MIN(floor(videoPosition * videoSoundBufferSize * 2), 2 * videoSoundBufferSize - 1);
+    
+    #endif
+    
+
 }
 
 

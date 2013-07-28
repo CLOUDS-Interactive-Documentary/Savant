@@ -1,31 +1,18 @@
 #include "WordBox.h"
 
-
-int indexOffset;
-
-
 WordBox::WordBox() {
     // Constructor
     jitterFont.loadFont("GUI/NewMedia Fett.ttf", 100, true, true, true);
-    _x = 0;
-    _y = 0;
     indexOffset = 0;
 }
 
-
 void WordBox::update() {
-
+    
 }
 
 void WordBox::draw() {
-    // Tween Position
-    //positionTween.update();
-//    _x = positionTween.getTarget(0);
-//    _y = positionTween.getTarget(1);
-    
-    
     ofPushMatrix();
-    ofTranslate(_x, _y);
+    ofTranslate(position.x, position.y);
     ofPushStyle();
     
     // Background shade
@@ -110,20 +97,17 @@ void WordBox::setConfidence(float confidence) {
     _confidence = confidence;
 }
 
-
 void WordBox::addSample(float samplitude) {
     samples.push_back(samplitude);
 }
 
-
 void WordBox::setPosition(float x, float y) {
-    // if (positionTween.isRunning()) // ??
-    _x = x;
-    _y = y;
+    position.x = x;
+    position.y = y;
 }
 
 void WordBox::tweenTo(float x, float y, float durationSeconds) {
-//    positionTween.setParameters(easingQuart, ofxTween::easeInOut, _x, x, durationSeconds, 0);
-//    positionTween.addValue(_y, y);
-//    positionTween.start(); //dont forget to call start to sync all the tweens
+    cout << "tweening"<< endl;
+    Tweener.addTween(position.x, x, 1, &ofxTransitions::easeInOutQuad);
+    Tweener.addTween(position.y, y, 1, &ofxTransitions::easeInOutQuad);
 }

@@ -126,6 +126,9 @@ public:
 	 * Buffer length is nnumber of samples.
 	 */
 	bool write(float *samples, int buffLength) {
+        
+        cout << "Sample: " << samples[0] << endl;
+        
 		if(file==NULL) return false;
 		short buff[buffLength];
 		for(int i = 0; i < buffLength; i++) {

@@ -1,13 +1,25 @@
 #pragma once
 
 // Optionally draw the cloud from the test video...
-// #define DRAW_CLOUD
+#define DRAW_CLOUD
 
 #include "CloudsVisualSystem.h"
 #include "ofxGSTT.h"
 #include "WordBox.h"
-#include "libresample.h"
+#include "ofxTweener.h"
 #include <vector>
+
+#ifdef AVF_PLAYER
+// Nothing AVF-specfic yet
+#else
+#include "wav-file.h"
+#include "WavFile.h"
+#endif
+
+
+
+
+
 
 //TODO: rename this to your own visual system
 class CloudsVisualSystemSavant : public CloudsVisualSystem {
@@ -130,6 +142,15 @@ protected:
     void updateWords();
     void drawWords();
     WordBox &getLatestBox();
+    
+    #ifdef AVF_PLAYER
+    // Nothing AVF-specfic yet
+    #else
+    WavFileReader* pObjWavFile;
+    short* videoSoundBuffer;
+    int videoSoundBufferSize;
+    #endif
+    
     
     void selfKeyDown(ofKeyEventArgs & args);
 };

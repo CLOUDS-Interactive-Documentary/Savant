@@ -2,7 +2,7 @@
 
 #include "ofMain.h"
 #include "JitterFont.h"
-#include "ofxTween.h"
+#include "ofxTweener.h"
 
 class WordBox {
 public:
@@ -19,8 +19,7 @@ public:
     void setPosition(float x, float y);
     void tweenTo(float x, float y, float durationSeconds);
 private:
-    float _x;
-    float _y;
+    ofPoint position;
     string _text;
     float _confidence;
     vector<float> samples;
@@ -28,7 +27,6 @@ private:
     JitterFont jitterFont;
     // Nothing yet
     
-    ofxTween positionTween;
-    ofxEasingQuart easingQuart;
     ofRectangle textBoundingBox;
+    int indexOffset; // makes the waveform jitter
 };

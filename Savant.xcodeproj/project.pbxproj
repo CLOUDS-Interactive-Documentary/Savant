@@ -18,6 +18,9 @@
 		2571E77517A45C2400F68508 /* WordBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2571E77317A45C2400F68508 /* WordBox.cpp */; };
 		2571E77D17A47F1900F68508 /* JitterFont.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2571E77B17A47F1900F68508 /* JitterFont.cpp */; };
 		2571E78217A4913200F68508 /* ofCyclinderPrimitive.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2571E78017A4913200F68508 /* ofCyclinderPrimitive.cpp */; };
+		2571E7BA17A4AFDC00F68508 /* ofxTransitions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2571E7B417A4AFDC00F68508 /* ofxTransitions.cpp */; };
+		2571E7BB17A4AFDC00F68508 /* ofxTweener.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2571E7B617A4AFDC00F68508 /* ofxTweener.cpp */; };
+		2571E7D517A56B6D00F68508 /* wav-file.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2571E7D417A56B6D00F68508 /* wav-file.cc */; };
 		257E673C17A30B1000BFE17E /* CloudsVisualSystemSavant.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 257E673A17A30B1000BFE17E /* CloudsVisualSystemSavant.cpp */; };
 		25B399E317A3ACA100B593BD /* ofxFlacEncoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 25B399DE17A3ACA000B593BD /* ofxFlacEncoder.cpp */; };
 		25B39AA317A3ACF100B593BD /* json_reader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 25B39A6217A3ACF000B593BD /* json_reader.cpp */; };
@@ -205,6 +208,14 @@
 		2571E77C17A47F1900F68508 /* JitterFont.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JitterFont.h; sourceTree = "<group>"; };
 		2571E78017A4913200F68508 /* ofCyclinderPrimitive.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofCyclinderPrimitive.cpp; sourceTree = "<group>"; };
 		2571E78117A4913200F68508 /* ofCyclinderPrimitive.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofCyclinderPrimitive.h; sourceTree = "<group>"; };
+		2571E7B217A4AFDC00F68508 /* README */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
+		2571E7B417A4AFDC00F68508 /* ofxTransitions.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxTransitions.cpp; sourceTree = "<group>"; };
+		2571E7B517A4AFDC00F68508 /* ofxTransitions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxTransitions.h; sourceTree = "<group>"; };
+		2571E7B617A4AFDC00F68508 /* ofxTweener.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxTweener.cpp; sourceTree = "<group>"; };
+		2571E7B717A4AFDC00F68508 /* ofxTweener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxTweener.h; sourceTree = "<group>"; };
+		2571E7D217A56B6D00F68508 /* wav-def.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "wav-def.h"; sourceTree = "<group>"; };
+		2571E7D317A56B6D00F68508 /* wav-file.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "wav-file.h"; sourceTree = "<group>"; };
+		2571E7D417A56B6D00F68508 /* wav-file.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "wav-file.cc"; sourceTree = "<group>"; };
 		257E673A17A30B1000BFE17E /* CloudsVisualSystemSavant.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CloudsVisualSystemSavant.cpp; sourceTree = "<group>"; };
 		257E673B17A30B1000BFE17E /* CloudsVisualSystemSavant.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CloudsVisualSystemSavant.h; sourceTree = "<group>"; };
 		25B399DE17A3ACA000B593BD /* ofxFlacEncoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxFlacEncoder.cpp; sourceTree = "<group>"; };
@@ -664,9 +675,41 @@
 			path = src;
 			sourceTree = "<group>";
 		};
+		2571E78817A4AFDC00F68508 /* ofxTweener */ = {
+			isa = PBXGroup;
+			children = (
+				2571E7B217A4AFDC00F68508 /* README */,
+				2571E7B317A4AFDC00F68508 /* src */,
+			);
+			name = ofxTweener;
+			path = ../../../addons/ofxTweener;
+			sourceTree = "<group>";
+		};
+		2571E7B317A4AFDC00F68508 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				2571E7B417A4AFDC00F68508 /* ofxTransitions.cpp */,
+				2571E7B517A4AFDC00F68508 /* ofxTransitions.h */,
+				2571E7B617A4AFDC00F68508 /* ofxTweener.cpp */,
+				2571E7B717A4AFDC00F68508 /* ofxTweener.h */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		2571E7D117A56B3A00F68508 /* wavstuff */ = {
+			isa = PBXGroup;
+			children = (
+				2571E7D217A56B6D00F68508 /* wav-def.h */,
+				2571E7D317A56B6D00F68508 /* wav-file.h */,
+				2571E7D417A56B6D00F68508 /* wav-file.cc */,
+			);
+			name = wavstuff;
+			sourceTree = "<group>";
+		};
 		25B399DD17A3AC8200B593BD /* utils */ = {
 			isa = PBXGroup;
 			children = (
+				2571E7D117A56B3A00F68508 /* wavstuff */,
 				25B399DE17A3ACA000B593BD /* ofxFlacEncoder.cpp */,
 				25B399DF17A3ACA000B593BD /* ofxFlacEncoder.h */,
 				25B399E217A3ACA100B593BD /* WavFile.h */,
@@ -1487,6 +1530,7 @@
 		BB4B014C10F69532006C3DED /* addons */ = {
 			isa = PBXGroup;
 			children = (
+				2571E78817A4AFDC00F68508 /* ofxTweener */,
 				2571E76E17A440CE00F68508 /* ofxTimer */,
 				2571E64617A43C7400F68508 /* ofxGSTT */,
 				25B39B1117A3AD5300B593BD /* flac */,
@@ -1791,6 +1835,9 @@
 				2571E77517A45C2400F68508 /* WordBox.cpp in Sources */,
 				2571E77D17A47F1900F68508 /* JitterFont.cpp in Sources */,
 				2571E78217A4913200F68508 /* ofCyclinderPrimitive.cpp in Sources */,
+				2571E7BA17A4AFDC00F68508 /* ofxTransitions.cpp in Sources */,
+				2571E7BB17A4AFDC00F68508 /* ofxTweener.cpp in Sources */,
+				2571E7D517A56B6D00F68508 /* wav-file.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1891,7 +1938,7 @@
 				GCC_MODEL_TUNING = NONE;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
-				GCC_PREPROCESSOR_DEFINITIONS = "AVF_PLAYER=1";
+				GCC_PREPROCESSOR_DEFINITIONS = "";
 				HEADER_SEARCH_PATHS = (
 					"$(OF_CORE_HEADERS)",
 					src,
@@ -1944,7 +1991,7 @@
 				GCC_MODEL_TUNING = NONE;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
-				GCC_PREPROCESSOR_DEFINITIONS = "AVF_PLAYER=1";
+				GCC_PREPROCESSOR_DEFINITIONS = "";
 				HEADER_SEARCH_PATHS = (
 					"$(OF_CORE_HEADERS)",
 					src,
