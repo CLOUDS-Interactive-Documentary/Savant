@@ -32,10 +32,7 @@ void WordBox::draw() {
         waveformPath.setFillColor(ofColor(255, 255, 255, 100));
         waveformPath.setStrokeColor(ofColor(255, 255, 255, 50));
         waveformPath.setStrokeWidth(5);
-        
         waveformPath.moveTo(0, height / 2);
-        
-        
         
         // Let the wave flow
         indexOffset += 10;

@@ -19,6 +19,7 @@ void CloudsVisualSystemSavant::selfSetupGui() {
 	customGui->addButton("Sample Speech", false);
 	customGui->addToggle("Custom Toggle", &customToggle);
 	customGui->addSlider("Sample Ahead (Seconds)", 0, 5000, &timeOffsetSeconds);
+    
 	
 	ofAddListener(customGui->newGUIEvent, this, &CloudsVisualSystemSavant::selfGuiEvent);
 	
@@ -41,8 +42,6 @@ void CloudsVisualSystemSavant::selfGuiEvent(ofxUIEventArgs &e) {
             stopSpeechListener();
         }
 	}
-    
-
 }
 
 //Use system gui for global or logical settings, for exmpl
@@ -76,7 +75,7 @@ void CloudsVisualSystemSavant::selfSetup() {
 		getRGBDVideoPlayer().setup(getVisualSystemDataPath() + "TestVideo/" + testFile + ".mov", getVisualSystemDataPath() + "TestVideo/" + testFile + ".xml" );
         
 #ifdef AVF_PLAYER
-        
+        // Nothing to see here...
 #else
         // Load sound manually
         string soundFileNameString = getVisualSystemDataPath() + "TestVideo/" + testFile + ".wav";
@@ -97,34 +96,16 @@ void CloudsVisualSystemSavant::selfSetup() {
             videoSoundBuffer[index] = pObjWavFile->readCurrentInput();
             index++;
         }
-        //closeWavFile(pObjWavFile); // ?
-        
-        // Test exporting video audio to wave.
-        /*
-         
-        float* normalAmplitudes = new float[videoSoundBufferSize];
-        for (int i = 0; i < videoSoundBufferSize; i++) {
-            normalAmplitudes[i] = (float)(videoSoundBuffer[i] / 32760.f);
-        }
-         
-        WavFile testWav;
-        testWav.setFormat(2, 44100, 16);
-        testWav.open(ofToDataPath("sometest.wav"), WAVFILE_WRITE);
-        testWav.write(normalAmplitudes, videoSoundBufferSize);
-        testWav.close();
-        */
-        
-        // SET video loaded
         
         
-        //videoSound.loadSound(getVisualSystemDataPath() + "TestVideo/" + testFile + ".wav");
+    #endif
         
-        //videoSound.getPlayert();
-        
-#endif
         
 
+        
 		getRGBDVideoPlayer().swapAndPlay();
+        
+        
         
 #ifdef DRAW_CLOUD
 		for(int i = 0; i < 640; i += 2){
@@ -168,7 +149,7 @@ void CloudsVisualSystemSavant::selfSceneTransformation(){
 void CloudsVisualSystemSavant::selfUpdate(){
     Tweener.update();
     
-    #ifdef AVF_PLAYER
+#ifdef AVF_PLAYER
     
     // Watch for audio ready
     CloudsRGBDVideoPlayer &rgbdVideoPlayer = getRGBDVideoPlayer();
@@ -199,15 +180,28 @@ void CloudsVisualSystemSavant::selfUpdate(){
         cout << "Unstable buffer length: " << lastRawAudioBufferLength << endl;
     }
     
-    #else
+
+    
+    // Watch for video loop
+    
+#else
     
     // Work around, data loads synchronously in setup
     bAudioReady = true;
     
-    #endif
+#endif
+    
+    
+#ifdef LOOP_VIDEO
+    cout << "Position: " << getRGBDVideoPlayer().getPlayer().getPosition() << endl;
+    if (getRGBDVideoPlayer().getPlayer().getPosition() >= 0.999) {
+        cout << "LOOPING" << endl;
+        getRGBDVideoPlayer().getPlayer().setPosition(0);
+        getRGBDVideoPlayer().getPlayer().play();
+    }
+#endif
     
     if (speechListenerListening) updateSpeechListener();
-    
     updateWords();
 }
 
@@ -217,15 +211,34 @@ void CloudsVisualSystemSavant::selfUpdate(){
 void CloudsVisualSystemSavant::selfDraw(){
     
 #ifdef DRAW_CLOUD
+    
+    // Note hack to camera in camera constructor: CloudsRGBDCamera::CloudsRGBDCamera(); 
+    
     ofPushMatrix();
 	setupRGBDTransforms();
+
 	pointcloudShader.begin();
 	getRGBDVideoPlayer().setupProjectionUniforms(pointcloudShader);
 	simplePointcloud.drawVertices();
 	pointcloudShader.end();
+    
+
+    ofVec3f headPosition = getRGBDVideoPlayer().headPosition;
+    ofVec3f offsetFromHeadPosition = ofVec3f(ofGetWidth() / -2, -ofGetHeight() / 2, 0);
+    
+    ofPushStyle();
+    ofPushMatrix();
+    ofTranslate(headPosition);
+    ofTranslate(offsetFromHeadPosition);
+    glDisable(GL_DEPTH_TEST);
+    drawWords();
+    glEnable(GL_DEPTH_TEST);
+    ofPopMatrix();
+    ofPopStyle();
+    
     ofPopMatrix();
 #endif
-    
+
 }
 
 // draw any debug stuff here
@@ -239,15 +252,14 @@ void CloudsVisualSystemSavant::selfDrawBackground(){
 	//turn the background refresh off
 	bClearBackground = true;
     
-    drawWords();
 }
 // this is called when your system is no longer drawing.
 // Right after this selfUpdate() and selfDraw() won't be called any more
 void CloudsVisualSystemSavant::selfEnd(){
     
-    #ifdef DRAW_CLOUD
+#ifdef DRAW_CLOUD
 	simplePointcloud.clear();
-    #endif
+#endif
     
     // Reset this, get fresh event if we start back
     
@@ -273,7 +285,7 @@ void CloudsVisualSystemSavant::selfKeyPressed(ofKeyEventArgs & args){
     if (lastKey != args.key) {
         selfKeyDown(args);
     }
-   
+    
     lastKey = args.key;
 }
 
@@ -346,7 +358,7 @@ void CloudsVisualSystemSavant::updateSpeechListener() {
     short* allAmplitudes;
     int allAmplitudesCount;
     
-    #ifdef AVF_PLAYER
+#ifdef AVF_PLAYER
     
     // Get listening position, find range since last update....
 	ofxAVFVideoPlayer &avfVideoPlayer = getRGBDVideoPlayer().getPlayer();
@@ -354,7 +366,7 @@ void CloudsVisualSystemSavant::updateSpeechListener() {
     allAmplitudesCount = avfVideoPlayer.getNumAmplitudes();
     allAmplitudes = avfVideoPlayer.getAllAmplitudes();
     
-    #else
+#else
     
     allAmplitudesCount = videoSoundBufferSize;
     allAmplitudes = videoSoundBuffer;
@@ -363,7 +375,7 @@ void CloudsVisualSystemSavant::updateSpeechListener() {
 	ofVideoPlayer &videoPlayer = getRGBDVideoPlayer().getPlayer();
     speechCurrentUpdateIndex = getSoundBufferIndexAtVideoPosition(videoPlayer.getPosition());
     
-    #endif
+#endif
     
     int startSoundIndex = speechLastUpdateIndex;
     int endSoundIndex = speechCurrentUpdateIndex; // TODO round down to buffer size...
@@ -372,7 +384,6 @@ void CloudsVisualSystemSavant::updateSpeechListener() {
     int indexOffset = timeOffsetSeconds * 441000 * 2; // times 2 for num channels?
     
     // If index offset overshoots...
-    
     startSoundIndex = min(startSoundIndex + indexOffset, (2 * allAmplitudesCount - 1));
     endSoundIndex = min(endSoundIndex + indexOffset, (2 * allAmplitudesCount - 1));
     
@@ -384,7 +395,7 @@ void CloudsVisualSystemSavant::updateSpeechListener() {
     }
     
     int currentChunkBufferSize = endSoundIndex - startSoundIndex;
-
+    
     // Get chunk of audio from video (and normalize)
     float* currentChunkBuffer = new float[currentChunkBufferSize];
     
@@ -394,7 +405,7 @@ void CloudsVisualSystemSavant::updateSpeechListener() {
         
         getLatestBox().addSample(currentChunkBuffer[i]);
     }
-
+    
     
     gstt.addAudio(currentChunkBuffer, currentChunkBufferSize, 2, 44100);
     speechLastUpdateIndex = speechCurrentUpdateIndex;
@@ -416,19 +427,19 @@ void CloudsVisualSystemSavant::gsttResponse(ofxGSTTResponseArgs & response){
 
 int CloudsVisualSystemSavant::getSoundBufferIndexAtVideoPosition(float videoPosition) {
     
-    #ifdef AVF_PLAYER
+#ifdef AVF_PLAYER
     
     CloudsRGBDVideoPlayer &rgbdVideoPlayer = getRGBDVideoPlayer();
 	ofxAVFVideoPlayer &avfVideoPlayer = rgbdVideoPlayer.getPlayer();
     return MIN(floor(videoPosition * avfVideoPlayer.getNumAmplitudes()) * 2, 2 * avfVideoPlayer.getNumAmplitudes() - 1);
     
-    #else
+#else
     
-    return MIN(floor(videoPosition * videoSoundBufferSize * 2), 2 * videoSoundBufferSize - 1);
+    return MIN(floor(videoPosition * videoSoundBufferSize), videoSoundBufferSize - 1);
     
-    #endif
+#endif
     
-
+    
 }
 
 

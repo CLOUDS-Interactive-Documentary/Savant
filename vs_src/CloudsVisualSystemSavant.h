@@ -2,6 +2,7 @@
 
 // Optionally draw the cloud from the test video...
 #define DRAW_CLOUD
+#define LOOP_VIDEO
 
 #include "CloudsVisualSystem.h"
 #include "ofxGSTT.h"

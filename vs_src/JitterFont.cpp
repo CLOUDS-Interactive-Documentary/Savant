@@ -2,6 +2,9 @@
 
 //=====================================================================
 void JitterFont::drawStringAsShapes(string c, float x, float y, float jitterAmount) {
+//    ofTrueTypeFont::drawStringAsShapes(c, x, y);
+//    return;
+    
     
     if (!bLoadedOk) {
     	ofLog(OF_LOG_ERROR,"ofTrueTypeFont::drawStringAsShapes - Error : font not allocated -- line %d in %s", __LINE__,__FILE__);
@@ -48,6 +51,10 @@ void JitterFont::drawStringAsShapes(string c, float x, float y, float jitterAmou
 
 
 void JitterFont::drawCharAsShape(int c, float x, float y, float jitterAmount) {
+//    ofTrueTypeFont::drawCharAsShape(c, x, y);
+//    return;
+    
+
 	if (c >= nCharacters){
 		//ofLog(OF_LOG_ERROR,"Error : char (%i) not allocated -- line %d in %s", (c + NUM_CHARACTER_TO_START), __LINE__,__FILE__);
 		return;
