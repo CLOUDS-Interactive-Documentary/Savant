@@ -17,8 +17,12 @@ void CloudsVisualSystemSavant::selfSetupGui() {
 	customGui->addSlider("Custom Float 2", 1, 1000, &customFloat2);
 	customGui->addButton("Add Test Word", false);
 	customGui->addButton("Sample Speech", false);
-	customGui->addToggle("Custom Toggle", &customToggle);
+	customGui->addToggle("Map Mouse Y To Damage", &bMouseYIsdamage);
 	customGui->addSlider("Sample Ahead (Seconds)", 0, 5000, &timeOffsetSeconds);
+	customGui->addSlider("Damage Factor", 0, 1, &damageFactor);
+	customGui->addSlider("Damage Viz Factor", 0, 1, &damageVizualizationFactor);
+	customGui->addSlider("Damage Back Scale Factor", 0, 1, &damageBackroundVizScaleFactor);    
+	customGui->addSlider("Confidence Viz Factor", 0, 20, &confidenceVizualizationFactor);
     
 	
 	ofAddListener(customGui->newGUIEvent, this, &CloudsVisualSystemSavant::selfGuiEvent);
@@ -69,7 +73,7 @@ void CloudsVisualSystemSavant::guiRenderEvent(ofxUIEventArgs &e){
 void CloudsVisualSystemSavant::selfSetup() {
     ofSetLogLevel(OF_LOG_VERBOSE);
     
-    string testFile = "Jer_TestVideo";
+
     
 	if(ofFile::doesFileExist(getVisualSystemDataPath() + "TestVideo/" + testFile + ".mov")) {
 		getRGBDVideoPlayer().setup(getVisualSystemDataPath() + "TestVideo/" + testFile + ".mov", getVisualSystemDataPath() + "TestVideo/" + testFile + ".xml" );
@@ -121,6 +125,8 @@ void CloudsVisualSystemSavant::selfSetup() {
     
     // Create speech engine
     setupSpeechEngine();
+    damageBackroundVizScaleFactor = 1;
+    damageFactor = 1;
 }
 
 // selfPresetLoaded is called whenever a new preset is triggered
@@ -148,6 +154,10 @@ void CloudsVisualSystemSavant::selfSceneTransformation(){
 //normal update call
 void CloudsVisualSystemSavant::selfUpdate(){
     Tweener.update();
+
+    if (bMouseYIsdamage) {
+        damageFactor = ofMap(ofGetMouseY(), 100, ofGetHeight(), 0, 1);
+    }
     
 #ifdef AVF_PLAYER
     
@@ -159,7 +169,6 @@ void CloudsVisualSystemSavant::selfUpdate(){
         // Done, buffer length is greater than zero and stable
         cout << "Audio ready" << endl;
         bAudioReady = true;
-        
         
         // Test exporting video audio to wave.
         //        short* allAmplitudes = avfVideoPlayer.getAllAmplitudes();
@@ -193,7 +202,6 @@ void CloudsVisualSystemSavant::selfUpdate(){
     
     
 #ifdef LOOP_VIDEO
-    cout << "Position: " << getRGBDVideoPlayer().getPlayer().getPosition() << endl;
     if (getRGBDVideoPlayer().getPlayer().getPosition() >= 0.999) {
         cout << "LOOPING" << endl;
         getRGBDVideoPlayer().getPlayer().setPosition(0);
@@ -224,7 +232,7 @@ void CloudsVisualSystemSavant::selfDraw(){
     
 
     ofVec3f headPosition = getRGBDVideoPlayer().headPosition;
-    ofVec3f offsetFromHeadPosition = ofVec3f(ofGetWidth() / -2, -ofGetHeight() / 2, 0);
+    ofVec3f offsetFromHeadPosition = ofVec3f((ofGetWidth() / -2) - 100, (-ofGetHeight() / 2) + 300, 0);
     
     ofPushStyle();
     ofPushMatrix();
@@ -243,14 +251,56 @@ void CloudsVisualSystemSavant::selfDraw(){
 
 // draw any debug stuff here
 void CloudsVisualSystemSavant::selfDrawDebug(){
-	
+
 }
+
+
 
 // or you can use selfDrawBackground to do 2D drawings that don't use the 3D camera
 void CloudsVisualSystemSavant::selfDrawBackground(){
     
 	//turn the background refresh off
 	bClearBackground = true;
+    
+    
+    // Draw noise grid
+   
+    if (damageVizualizationFactor > 0) {
+    ofPushStyle();
+        // ofEnableAlphaBlending();
+        //  ofPushMatrix();
+        //        ofScale(damageBackroundVizScaleFactor, damageBackroundVizScaleFactor);
+        
+        float boxSize = damageBackroundVizScaleFactor * 100;
+        
+    for (int x = -boxSize; x < ofGetWidth() + boxSize; x += 20) {
+        for (int y = -boxSize; y < ofGetHeight() + boxSize; y += 20) {
+
+            int grayLevel = (255 * ofRandom(1) * ofRandom(1) * damageFactor * damageVizualizationFactor);
+            
+               ofSetColor(grayLevel, grayLevel, grayLevel);
+                  ofFill();
+            ofPushMatrix();
+            
+            ofTranslate(x + (ofGetFrameNum() % 40), y + (ofGetFrameNum() % 20));
+            
+            ofTranslate(-boxSize/2, -boxSize/2);
+            ofRotate(ofRandom(360));
+            //ofScale(1 + ofRandom(damageFactor), 1 + ofRandom(damageFactor));
+            ofTranslate(boxSize, boxSize);
+            
+            ofRect(0, 0, boxSize, boxSize);
+
+            
+            ofPopMatrix();
+        }
+    }
+        
+        //        ofPopMatrix();
+
+        // ofDisableAlphaBlending();
+    ofPopStyle();
+    }
     
 }
 // this is called when your system is no longer drawing.
@@ -314,9 +364,9 @@ void CloudsVisualSystemSavant::selfMouseMoved(ofMouseEventArgs& data){
 void CloudsVisualSystemSavant::selfMousePressed(ofMouseEventArgs& data){
 	//startSpeechListener();
     
-    for (std::vector<WordBox>::size_type i = 0; i < words.size(); i++) {
-        words[i].tweenTo(ofGetMouseX(), ofGetMouseY(), ofRandom(1, 5));
-    }
+//    for (std::vector<WordBox>::size_type i = 0; i < words.size(); i++) {
+//        words[i].tweenTo(ofGetMouseX(), ofGetMouseY(), ofRandom(1, 5));
+//    }
     
 }
 
@@ -349,11 +399,12 @@ void CloudsVisualSystemSavant::startSpeechListener() {
     speechListenerListening = true;
     gstt.startListening();
     addRandomWordBox(); // add box to represent this
+    getLatestBox().setDamageFactor(damageFactor);
 }
 
+float* currentChunkBuffer = new float[20000];
+
 void CloudsVisualSystemSavant::updateSpeechListener() {
-    
-    
     int speechCurrentUpdateIndex;
     short* allAmplitudes;
     int allAmplitudesCount;
@@ -397,11 +448,17 @@ void CloudsVisualSystemSavant::updateSpeechListener() {
     int currentChunkBufferSize = endSoundIndex - startSoundIndex;
     
     // Get chunk of audio from video (and normalize)
-    float* currentChunkBuffer = new float[currentChunkBufferSize];
+    //cout << "Chunk buffer size: " << currentChunkBufferSize << endl;
+    //float* currentChunkBuffer = new float[currentChunkBufferSize]; // reuse this to avoid allocation
     
     for (int i = 0; i < currentChunkBufferSize; i++) {
-        currentChunkBuffer[i] = allAmplitudes[startSoundIndex + i] / 32760.f;
         
+        if (damageFactor > 0) {
+        currentChunkBuffer[i] = ((allAmplitudes[startSoundIndex + i]) / 32760.f) * (1 + (ofRandom(-damageFactor, damageFactor)));
+        }
+        else {
+        currentChunkBuffer[i] = ((allAmplitudes[startSoundIndex + i]) / 32760.f);
+        }
         
         getLatestBox().addSample(currentChunkBuffer[i]);
     }
@@ -421,6 +478,9 @@ void CloudsVisualSystemSavant::gsttResponse(ofxGSTTResponseArgs & response){
 	cout << "Response: " << response.msg << endl << "with confidence: " << ofToString(response.confidence) << endl;
     getLatestBox().setText(response.msg);
     getLatestBox().setConfidence(response.confidence);
+
+    
+    //getLatestBox().tweenTo(getLatestBox().getPosition().x, getLatestBox().getPosition().y - 2000, 40);
 }
 
 #pragma mark -- Helpers
@@ -428,18 +488,12 @@ void CloudsVisualSystemSavant::gsttResponse(ofxGSTTResponseArgs & response){
 int CloudsVisualSystemSavant::getSoundBufferIndexAtVideoPosition(float videoPosition) {
     
 #ifdef AVF_PLAYER
-    
     CloudsRGBDVideoPlayer &rgbdVideoPlayer = getRGBDVideoPlayer();
 	ofxAVFVideoPlayer &avfVideoPlayer = rgbdVideoPlayer.getPlayer();
     return MIN(floor(videoPosition * avfVideoPlayer.getNumAmplitudes()) * 2, 2 * avfVideoPlayer.getNumAmplitudes() - 1);
-    
 #else
-    
     return MIN(floor(videoPosition * videoSoundBufferSize), videoSoundBufferSize - 1);
-    
 #endif
-    
-    
 }
 
 
@@ -460,24 +514,29 @@ void CloudsVisualSystemSavant::addRandomWordBox() {
 
 void CloudsVisualSystemSavant::updateWords() {
     for (std::vector<WordBox>::size_type i = 0; i < words.size(); i++) {
+        words[i].setConfidenceVizFactor(confidenceVizualizationFactor);
         words[i].update();
     }
 }
 
 void CloudsVisualSystemSavant::drawWords() {
     // Lay the out, newest at top
-    float yOffset = 20;
-    for (int i = (words.size() - 1); i >= 0; i--) {
-        words[i].setPosition(50, yOffset);
-        yOffset += 200;
-    }
+//    float yOffset = 20;
+//    for (int i = (words.size() - 1); i >= 0; i--) {
+//        words[i].setPosition(50, yOffset);
+//        yOffset += 200;
+//    }
     
     for (std::vector<WordBox>::size_type i = 0; i < words.size(); i++) {
         words[i].draw();
+        if (bDebug) words[i].drawDebug();        
     }
 }
 
 WordBox& CloudsVisualSystemSavant::getLatestBox() {
+    
+    
+    
     if (words.size() > 0) {
         return words[words.size() - 1];
     }

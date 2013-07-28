@@ -4,6 +4,8 @@ WordBox::WordBox() {
     // Constructor
     jitterFont.loadFont("GUI/NewMedia Fett.ttf", 100, true, true, true);
     indexOffset = 0;
+    _confidence = 0;
+    bGotResult = false;
 }
 
 void WordBox::update() {
@@ -11,6 +13,24 @@ void WordBox::update() {
 }
 
 void WordBox::draw() {
+    if (position.y < -1100) return; // don't draw off screeners
+    
+    if (bGotResult && (_text == "")) {
+        // Don't draw bad results
+     return;
+    }
+    else if (bGotResult &&  (_text != "")) {
+        // Scroll up after results are received
+        position.y -= 1;
+    }
+    
+
+    
+    
+    //cout << position.y << endl;
+    
+
+    
     ofPushMatrix();
     ofTranslate(position.x, position.y);
     ofPushStyle();
@@ -76,7 +96,7 @@ void WordBox::draw() {
         ofScale(textScale, textScale);
         ofTranslate(0, textBoundingBox.height + yCenterOffset);
         
-        jitterFont.drawStringAsShapes(_text, 0, 0, ofMap(ofGetMouseX(), 0, ofGetWidth(), 0, 5));
+        jitterFont.drawStringAsShapes(_text, 0, 0, (1 - (_confidence * _confidence)) * _confidenceVizFactor);
         ofPopMatrix();
         ofPopStyle();
     }
@@ -85,13 +105,28 @@ void WordBox::draw() {
     ofPopMatrix();
 }
 
-void WordBox::setText(string text) {
-    _text = text;
-    textBoundingBox = jitterFont.getStringBoundingBox(_text, 0, 0);
+void WordBox::drawDebug() {
+    ofPushMatrix();
+    ofPushStyle();
+    
+    ofTranslate(position.x, position.y);
+    //    ofScale(2, 2);
+
+    //glScalef(1, 1, 1);
+    
+    ofRotate(90);
+    ofSetColor(255, 0, 0);
+    ofFill();
+    ofDrawBitmapString("Confidence: " + ofToString(_confidence), 0, 0);
+    
+    ofPopStyle();
+    ofPopMatrix();
 }
 
-void WordBox::setConfidence(float confidence) {
-    _confidence = confidence;
+void WordBox::setText(string text) {
+    _text = text;
+    bGotResult = true;
+    textBoundingBox = jitterFont.getStringBoundingBox(_text, 0, 0);
 }
 
 void WordBox::addSample(float samplitude) {
@@ -103,8 +138,25 @@ void WordBox::setPosition(float x, float y) {
     position.y = y;
 }
 
+ofPoint WordBox::getPosition() {
+    return position;
+}
+
 void WordBox::tweenTo(float x, float y, float durationSeconds) {
-    cout << "tweening"<< endl;
-    Tweener.addTween(position.x, x, 1, &ofxTransitions::easeInOutQuad);
-    Tweener.addTween(position.y, y, 1, &ofxTransitions::easeInOutQuad);
+    Tweener.addTween(position.x, x, durationSeconds, &ofxTransitions::easeInOutQuad);
+    Tweener.addTween(position.y, y, durationSeconds, &ofxTransitions::easeInOutQuad);
+}
+
+void WordBox::setConfidenceVizFactor(float factor) {
+    _confidenceVizFactor = factor;
+}
+
+
+void WordBox::setConfidence(float confidence) {
+    _confidence = confidence;
+}
+
+
+void WordBox::setDamageFactor(float factor) {
+    _damageFactor = factor;
 }
