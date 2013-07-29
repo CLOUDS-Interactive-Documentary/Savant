@@ -17,11 +17,6 @@
 #include "WavFile.h"
 #endif
 
-
-
-
-
-
 //TODO: rename this to your own visual system
 class CloudsVisualSystemSavant : public CloudsVisualSystem {
 public:
@@ -101,6 +96,8 @@ public:
     // if you use a custom camera to fly through the scene
 	// you must implement this method for the transitions to work properly
 	ofCamera& getCameraRef(){
+        cloudsCamera.sideDistance = 200;
+        cloudsCamera.frontDistance = 247.54;
 		return cloudsCamera;
 	}
 	
