@@ -159,9 +159,9 @@ protected:
     int videoSoundBufferSize;
     #endif
     
-    //string testFile = "Jer_TestVideo";
-    //string testFile = "Lauren_sentiment_anaylsis";
-    string testFile = "Fernanda_Sentiment_analysis";
+    string testFile = "Jer_TestVideo";
+    // string testFile = "Lauren_sentiment_anaylsis";
+    // string testFile = "Fernanda_Sentiment_analysis";
     //string testFile = "Jen_data_autobiography";
     //string testFile = "Martin_verbal_programming_debate";
     

@@ -459,6 +459,11 @@ void CloudsVisualSystemSavant::updateSpeechListener() {
     
     int currentChunkBufferSize = endSoundIndex - startSoundIndex;
     
+    if (currentChunkBufferSize < 0) {
+        ofLogWarning("Buffer size was negative!?... must have tried recording through a video loop");        
+        return;
+    }
+    
     // Get chunk of audio from video (and normalize)
     //cout << "Chunk buffer size: " << currentChunkBufferSize << endl;
     //float* currentChunkBuffer = new float[currentChunkBufferSize]; // reuse this to avoid allocation
